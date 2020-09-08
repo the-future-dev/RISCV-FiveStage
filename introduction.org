@@ -6,12 +6,6 @@
   design course TDT4255, however you are more than welcome to use this project
   yourself, or to teach a class. Please reach out if you do!
   
-  If you are doing this as part of the TDT4255 course be sure to join our slack
-  group. Slack links only last for a month, so the invite link will likely be
-  expired. 
-  Here it is anyways, feel free to join even if you're not taking the course at NTNU.
-  https://join.slack.com/t/tdt4255-2020/shared_invite/zt-erb9fbnm-NscwZGNsVSTjYPnSCjo1aA
-  
   In this exercise you will build a 5-stage RISCV32I processor that is able to run
   real RISC-V programs as long as they only use the 32I instruction subset.
   Since this is your first time building a processor, starting with a 5-stage design
