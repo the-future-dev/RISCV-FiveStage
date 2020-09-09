@@ -1,4 +1,4 @@
-* Theory question EX1
+* Theory questions EX1
   
   Keep in mind that your design and your implementation are separate entities,
   thus you should answer these questions based on your ideal design, not your
