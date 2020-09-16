@@ -65,9 +65,7 @@
    
 ** Question 2
    *4 points.*
-   *NO PARTIAL CREDITS*
-   Since you can test your solution with the testing framework I will not offer any
-   points for a near correct solution to this problem.
+   Partial credit awarded on a case by case basis.
 
    Reading the binary of a RISC-V program you get the following:
 
@@ -110,9 +108,7 @@
 
 ** Question 3
    *4 points.*
-   *NO PARTIAL CREDITS*
-   Since you can test your solution with the testing framework I will not offer any
-   points for a near correct solution to this problem.
+   Partial credit awarded on a case by case basis.
 
    In order to load a large number LUI and ADDI are used.
    consider the following program
