@@ -48,10 +48,10 @@
 
 
 * TODO Question 1 - Hazards
-  For the following programs describe each hazard with type (data or control), line number and a
+  For each of the following programs, describe each hazard with type (data or control), line number and a
   small (max one sentence) description.
   
-  ** program 1
+** program 1
   #+begin_src asm
 1    addi t0,   zero,  10
 2    addi t1,   zero,  20
@@ -61,6 +61,23 @@
 5    jr   ra
   #+end_src
 
+** program 2
+  #+begin_src asm
+1    addi t0,   zero,  10
+2    lw   t0,   10(t0)
+3    beq  t0,   zero,  .L3
+4    jr   ra
+  #+end_src
+  
+** program 3
+  #+begin_src asm
+1  lw   t0,   0(t0)
+2  lw   t1,   4(t0)
+3  sw   t0,   8(t1)
+4  lw   t1,   12(t0)
+5  beq  t0,   t1,  .L3
+6  jr   ra
+  #+end_src
 
 * Question 2 - Handling hazards
   For this question, keep in mind that the forwarder does not care if the values it forwards are being used or not!
