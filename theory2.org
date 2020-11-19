@@ -48,8 +48,18 @@
 
 
 * TODO Question 1 - Hazards
-  Write programs here that are less of a crapshoot. Clarify dependency vs hazards etc etc and
-  *enforce* a format that is easy to grade.
+  For the following programs describe each hazard with type (data or control), line number and a
+  small (max one sentence) description.
+  
+  ** program 1
+  #+begin_src asm
+1    addi t0,   zero,  10
+2    addi t1,   zero,  20
+  L2:
+3    sub  t1,   t1,    t0
+4    beq  t1,   zero, .L2
+5    jr   ra
+  #+end_src
 
 
 * Question 2 - Handling hazards
