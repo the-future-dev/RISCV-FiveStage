@@ -180,7 +180,7 @@
   0x10 add  x2, x2, x1
   0x14 bge  x2, x3, .L1
   0x18 j    .L2
-  .L3:
+  .L2:
   0x1C addi x2, x2, 0x10
   0x20 slli x2, 0x4
   0x24 jr   ra
