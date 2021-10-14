@@ -228,7 +228,7 @@ object Parser {
       def addOps      (t: List[SourceInfo[Op]]): FoldHelper = {
         if(testOptions.nopPadded){
           copy(
-            ops = t.flatMap(x => (x :: List.fill(4)(SourceInfo("inserted NOP", NOP).widen[Op]))).reverse ::: ops,
+            ops = t.flatMap(x => (x :: List.fill(4)(SourceInfo("inserted NOP", NOP).widen[Op])).reverse) ::: ops,
             addrCount = addrCount + t.size*4*5)
         }
         else {
