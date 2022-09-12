@@ -60,22 +60,3 @@ The forth and final milstone represents the culmination of all previous work int
 ** Debugging a failed test
    When a test fails, (or if you have enabled verbose logging) a side by side execution log is shown, 
    allowing you to pinpoint exactly how your processor went wrong.
-   
-** Intended use
-  This coursework is intended to be used!
-  If you are a tutor currently teaching computer architecture you may freely use this project, but
-  I would be very grateful if you provided me with feedback. Pull requests always welcome!
-  
-** Contributing
-  Considering the very significant amount of work saved on making your own coursework, you could
-  maybe help adding features.
-  Take a look at [[./TODO.org][the TODO file]] (does not render well in github) to get an idea of nice features to 
-  have, or add different features altogether!
-  
-  Additionally, if you write your own tests, please send a pull request! The more tests the better!
-
-** Solution
-  This is a graded coursework, so I would prefer that if you fork this project you keep the solution
-  private.
-  If you want access to the solution please send me a message verifying that you are a tutor and I
-  will make it available to you.
