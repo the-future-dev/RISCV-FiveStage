@@ -1,15 +1,33 @@
-Best viewed in emacs org mode.
+* RISCV FiveStage Processor Project (190 Points)
+This repository represents the RISCV Processor Project for the TDT-4255 course at NTNU. This project covers using Chisel to design a simple 32bit RISCV processor using RISCV32I integer instruction set. Please read the entire README before beginning work on this project as it will clarify many details of how the project work is to be carried out.
 
-This is the coursework for the graded part of the TDT4255 course at NTNU.
+The project itself is broken into four seperate milestones where each one adds additional functionality to the CPU. Functionality for each milestone is progressive, so it is necessary to complete earlier milestones before proceeded to subsequent ones.
 
-* Instructions
+**** Milestone 1: Creating a Basic Datapath (30 Points)
+The goal of the first milestone is to establish basic CPU functionality and correctness for simple programs. To facilite this four NOP instructions will be inserted in between each regular instruction so that the CPU does not have to deal with any kind of hazards or forwarding.
+
+**** Milestone 2: Completeing the Datapath (30 Points)
+Milestone 2 is a simple evolution of milestone 1. All all of the RISCV32I instructions should be added to the design, and the full battery of tests should successfully execute when NOPs are turned on.
+
+**** Milestone 3: Pipelining the CPU (30 Points)
+For the 3rd milestone NOPs between every instruction are disabled, and the support for pipelining is added so as to increase CPU performance. Getting this working requires adding support to handle RAW Hazards, Control Hazards, and delay after load.
+
+**** Milestone 4: Further Performance Improvments: (100 Points)
+The forth and final milstone represents the culmination of all previous work into a single deisgn while aiming to further increase performance. For the final part of this project students are required to add additional hardware of their own choosing to the CPU to try and make it even faster than what was done in milestone 3. Student have the freedom to choose their own component to work on, though we have several optional suggestions as well.
+
+- Branch Prediction
+- Fast Branch Handling
+- Value Prediction
+- Data Cache (Quite Advanced)
+
+** Instructions
 
   To get started designing your 5-stage RISC-V pipeline you read the [[./introduction.org][introduction]]
   
   If you want an introduction to chisel and hardware design you should do the [[https://github.com/PeterAaser/tdt4255-chisel-intro][Chisel Intro]] 
   exercise first.
 
-* About
+** About
   Since much of the tooling for HW design is rather difficult to work with this skeleton comes
   with a lot of reinvented wheels which should make inspecting what is really going on a little
   clearer.
@@ -43,12 +61,12 @@ This is the coursework for the graded part of the TDT4255 course at NTNU.
    When a test fails, (or if you have enabled verbose logging) a side by side execution log is shown, 
    allowing you to pinpoint exactly how your processor went wrong.
    
-* Intended use
+** Intended use
   This coursework is intended to be used!
   If you are a tutor currently teaching computer architecture you may freely use this project, but
   I would be very grateful if you provided me with feedback. Pull requests always welcome!
   
-* Contributing
+** Contributing
   Considering the very significant amount of work saved on making your own coursework, you could
   maybe help adding features.
   Take a look at [[./TODO.org][the TODO file]] (does not render well in github) to get an idea of nice features to 
@@ -56,7 +74,7 @@ This is the coursework for the graded part of the TDT4255 course at NTNU.
   
   Additionally, if you write your own tests, please send a pull request! The more tests the better!
 
-* Solution
+** Solution
   This is a graded coursework, so I would prefer that if you fork this project you keep the solution
   private.
   If you want access to the solution please send me a message verifying that you are a tutor and I
