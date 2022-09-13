@@ -1,20 +1,20 @@
 * About RISCV-FiveStage
-  The task in this exercise is to implement a 5-stage pipelined processor for
+  The task in this project is to implement a 5-stage pipelined processor for
   the [[./instructions.org][RISCV32I instruction set]].
   
-  This exercise framework is used for the two graded exercises in the processor
+  This project framework is used for the all of the milestones in the processor
   design course TDT4255, however you are more than welcome to use this project
   yourself, or to teach a class. Please reach out if you do!
   
-  In this exercise you will build a 5-stage RISCV32I processor that is able to run
+  In this project you will build a 5-stage RISCV32I processor that is able to run
   real RISC-V programs as long as they only use the 32I instruction subset.
   Since this is your first time building a processor, starting with a 5-stage design
-  presents a very difficult challenge, which is why this exercise is split into two
-  parts. In the first part the instructions will be interspersed with NOP instructions,
+  presents a very difficult challenge, which is why this project is split into four
+  parts. In the first two parts the instructions will be interspersed with NOP instructions,
   four NOPs for every real. This means that you do not need to take into account
   dependencies and so forth, making things a lot easier for you.
   
-  For the second exercise the only difference is that NOP instructions will not be
+  For the last two parts the only difference is that NOP instructions will not be
   inserted. You can read about this in the [[exercise2.org][ex2 guide]], and will not be discussed
   further here.
 
@@ -31,14 +31,6 @@
    Keep in mind that this is just a high level sketch, omitting many details as well
    entire features (for instance branch logic)
 
-   *Important*
-   When you are done, use the provided ./deliver.sh script to pack up the archive.
-   If you're unable to run bash scripts then please ensure that you deliver a *zip* archive.
-   Not .rar or anything else, just use zip because my grading script knows how to handle that
-   in addition to the one used by deliver.sh
-   named after your username. Nothing more, nothing less, just your username.
-   This archive should be runnable as is, thus you need to include all the necessary files.
-   (I may or may not diff the tests to check if you're screwing with them)
 
    #+CAPTION: A very high level processor schematic. Registers, Instruction and data memory are already implemented.
    #+attr_html: :width 1000px
@@ -74,7 +66,7 @@
      
      This is the instruction fetch stage.
      In this stage instruction fetching should happen, meaning you will have to
-     add logic for handling branches, jumps, and for exercise 2, stalls.
+     add logic for handling branches, jumps, and eventually, stalls.
      The reason this module is already included is that it contains the instruction
      memory, described next which is heavily coupled to the testing harness.
      
