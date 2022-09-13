@@ -21,7 +21,7 @@ object Manifest {
 
   val singleTest = "addi.s"
 
-  val nopPadded = false
+  val nopPadded = true
 
   val singleTestOptions = TestOptions(
     printIfSuccessful  = true,
