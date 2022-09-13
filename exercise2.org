@@ -1,4 +1,4 @@
-* Exercise 2
+* Milestone 3
   Safety wheels are now officially off.
   To verify this, set nopPadded to false in Manifest.scala and observe as all hell
   breaks loose.
@@ -85,7 +85,7 @@
    a warning to the barriers that hold spurious instructions telling them to render them impotent
    by setting the control signals to do nothing.
    
-* Putting the pedal to the metal
+* Milestone 4
   Once you have a design that RAW and control hazards you're ready to up the ante and add some
   improvements to your design.
   Some suggestions:
