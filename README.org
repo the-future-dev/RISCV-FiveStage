@@ -4,59 +4,74 @@ This repository represents the RISCV Processor Project for the TDT-4255 course a
 The project itself is broken into four seperate milestones where each one adds additional functionality to the CPU. Functionality for each milestone is progressive, so it is necessary to complete earlier milestones before proceeded to subsequent ones.
 
 **** Milestone 1: Creating a Basic Datapath (30 Points)
-The goal of the first milestone is to establish basic CPU functionality and correctness for simple programs. To facilite this four NOP instructions will be inserted in between each regular instruction so that the CPU does not have to deal with any kind of hazards or forwarding.
+The goal of the first milestone is to establish basic CPU functionality and correctness for simple programs. To facilite this four NOP instructions will be inserted in between each regular instruction so that the CPU does not have to deal with any kind of hazards or forwarding. To get full credit on milestone 1 all "basic" tests must run with NOPs inserted.
 
 **** Milestone 2: Completeing the Datapath (30 Points)
-Milestone 2 is a simple evolution of milestone 1. All all of the RISCV32I instructions should be added to the design, and the full battery of tests should successfully execute when NOPs are turned on.
+Milestone 2 is a simple evolution of milestone 1. To get full credit on milestone 2 all of the RISCV32I instructions should be added to the design, and the full battery of tests in "basic" and "programs" should successfully execute when NOPs are turned on.
 
 **** Milestone 3: Pipelining the CPU (30 Points)
-For the 3rd milestone NOPs between every instruction are disabled, and the support for pipelining is added so as to increase CPU performance. Getting this working requires adding support to handle RAW Hazards, Control Hazards, and delay after load.
+For the 3rd milestone NOPs between every instruction are disabled, and the support for pipelining is added so as to increase CPU performance. Getting this working requires adding support to handle RAW Hazards, Control Hazards, and delay after load. To get full credit for milestone 3 NOPs must be turned off, and all tests in "basic" and "programs" must run successfully.
 
 **** Milestone 4: Further Performance Improvments: (100 Points)
-The forth and final milstone represents the culmination of all previous work into a single deisgn while aiming to further increase performance. For the final part of this project students are required to add additional hardware of their own choosing to the CPU to try and make it even faster than what was done in milestone 3. Student have the freedom to choose their own component to work on, though we have several optional suggestions as well.
+The forth and final milstone represents the culmination of all previous work into a single deisgn while aiming to further increase performance. For the final part of this project students are required to add additional hardware of their own choosing to the CPU to try and make it even faster than what was done in milestone 3. Student have the freedom to choose their own component to work on, though we have several optional suggestions as well. To get full credit on milestone 4 a simple version of at least one of the following hardware upgrades must be implemented, this will need to be explained verbally to a TA during a lab session. Additionally all tests in "basic" and "programs" must run successfully. Finally, your code must be uploaded to the course website where it will be evaluated.
 
 - Branch Prediction
 - Fast Branch Handling
 - Value Prediction
 - Data Cache (Quite Advanced)
 
-** Instructions
+** Project Instructions
+To complete this project it is necessary to do the following tasks. They will guide you through setting up the project files, and explain how to start writing th HDL to complete the CPU.
 
-  To get started designing your 5-stage RISC-V pipeline you read the [[./introduction.org][introduction]]
-  
-  If you want an introduction to chisel and hardware design you should do the [[https://github.com/PeterAaser/tdt4255-chisel-intro][Chisel Intro]] 
-  exercise first.
+**** Task 1: 
+To get started designing your 5-stage RISC-V pipeline first read the [[./introduction.org][introduction]] section. 
 
-** About
+**** Task 2: 
+When designing your CPU, reference the [[./instructions.org][instructions]] file. This contains a list of all of the RISCV instructions and their bit layouts that you will evenetually need to add to your deisgn. It is not necessary to read through the whole thing, but it is useful as a reference.
+
+**** Task 3: 
+Milestones 1 and 2 are started by reading [[./exercise.org][exercise]] file. To pass milestone 1 it is necessary to pass the 7 tests located in [[./src/test/resources/tests/basic/]]. For milestone 2 it is necessary to pass all of the tests in "basic" and "programs".
+
+**** Task 4:
+Milestones 3 and 4 are started by looking at [[./exercise2.org][exercise2]] file.
+
+** Grading
+Each time you are finished with a milestone and wish to get points is it necessary to come to a lab session. Once there show a TA that all of the necessary tests run successfully. You will likely also be asked a few questions about your code.
+
+In addition to showing the code during lab sessions, it is necessary at the end of the course to upload your final milestone to the course website as a compressed archive such as a zip. Details for this will come at a later date.
+
+** Some addtional info to help you during your project
+
+*** About
   Since much of the tooling for HW design is rather difficult to work with this skeleton comes
   with a lot of reinvented wheels which should make inspecting what is really going on a little
   clearer.
   
   The FiveStage suite works in the following way:
   
-** Parsing a test
+*** Parsing a test
    The [[./src/test/scala/RISCV/Parser.scala][Parser]] parses an assembly test found in the test resource directory.
    The resulting program can then be loaded on to a VM, or assembled into machine code.
 
-** Interpreting the test
+*** Interpreting the test
    Next the parsed assembly code is run on a virtual machine.
    Relevant information is then compiled in an execution trace log which shows which instruction was
    performed at a given step and what the resulting state was.
 
-** Preparing your circuit
+*** Preparing your circuit
    Next up the chisel design is synthesized into a circuit emulator.
    The (relatively seamless) test harness provided for your circuit is then used in order to preload
    the instruction memory with the assembled machinecode, as well as test defined initial memory and
    register configurations.
 
-** Running your circuit
+*** Running your circuit
    As with the VM, your circuit will leave an extensive log which is parsed and used to verify the
    correctness of your design
 
-** Checking the result
+*** Checking the result
    If your processor performed the same updates to registers and memory, and terminated at the same
    address the test is successful.
    
-** Debugging a failed test
+*** Debugging a failed test
    When a test fails, (or if you have enabled verbose logging) a side by side execution log is shown, 
    allowing you to pinpoint exactly how your processor went wrong.
