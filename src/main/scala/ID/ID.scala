@@ -19,14 +19,15 @@ class InstructionDecode extends MultiIOModule {
   val io = IO(
     new Bundle {
       /*TODO: IO*/
-      val instruction = Input(new Instruction)
+      val in = Input(new IFBundle)
+
     }
   )
 
   val registers = Module(new Registers)
   val decoder   = Module(new Decoder).io
-
-
+  val currentPC = RegInit(UInt(32.W), 0.U)
+  
   /**
     * Setup. You should not change this code
     */
@@ -36,11 +37,14 @@ class InstructionDecode extends MultiIOModule {
 
 
   /**Getting the instruction and decoding it into the registers*/
-  registers.io.readAddress1 := io.instruction.registerRs1
-  registers.io.readAddress2 := io.instruction.registerRs2
+  registers.io.readAddress1 := io.in.instruction.registerRs1
+  registers.io.readAddress2 := io.in.instruction.registerRs2
   registers.io.writeEnable  := false.B
-  registers.io.writeAddress := io.instruction.registerRd
+  registers.io.writeAddress := io.in.instruction.registerRd
   registers.io.writeData    := 0.U
 
   decoder.instruction := 0.U.asTypeOf(new Instruction)
+
+  //Handling PC
+  currentPC :=io.in.pc
 }

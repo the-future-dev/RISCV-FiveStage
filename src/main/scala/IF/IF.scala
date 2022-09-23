@@ -20,35 +20,31 @@ class InstructionFetch extends MultiIOModule {
     */
   val io = IO(
     new Bundle {
-      val PC = Output(UInt())
-      val instruction = Output(new Instruction)
+      val out = Output(new IFBundle)
     })
 
+
   val IMEM = Module(new IMEM)
-  val PC   = RegInit(UInt(32.W), 0.U)
+  val pc   = RegInit(UInt(32.W), 0.U)
+  val instruction = Wire(new Instruction)
 
-
-  /**
-    * Setup. You should not change this code
-    */
+  /** testHarness initialization DO NOT TOUCH*/
   IMEM.testHarness.setupSignals := testHarness.IMEMsetup
   testHarness.PC := IMEM.testHarness.requestedAddress
 
 
-  //OK TODO: PC increment of 4
-  io.PC := PC
-  IMEM.io.instructionAddress := PC
-  PC := PC + 4.U
+  //Handling the program counter
+  io.out.pc := pc
+  pc := pc + 4.U
 
-  val instruction = Wire(new Instruction)
+  //Handling the instruction fetch <=> instruction
+  IMEM.io.instructionAddress := pc
   instruction := IMEM.io.instruction.asTypeOf(new Instruction)
+  io.out.instruction := instruction
 
-
-  /**
-    * Setup. You should not change this code.
-    */
+  /**Setup */
   when(testHarness.IMEMsetup.setup) {
-    PC := 0.U
+    pc := 0.U
     instruction := Instruction.NOP
   }
 }

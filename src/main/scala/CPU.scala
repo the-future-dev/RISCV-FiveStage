@@ -20,14 +20,13 @@ class CPU extends MultiIOModule {
     }
   )
 
-  /**
-    You need to create the classes for these yourself
-    */
-  // val IFBarrier  = Module(new IFBarrier).io
+  //Barriers init
+  val IFBarrier  = Module(new IFBarrier).io
   // val IDBarrier  = Module(new IDBarrier).io
   // val EXBarrier  = Module(new EXBarrier).io
   // val MEMBarrier = Module(new MEMBarrier).io
 
+  //Modules init
   val ID  = Module(new InstructionDecode)
   val IF  = Module(new InstructionFetch)
   // val EX  = Module(new Execute)
@@ -35,9 +34,7 @@ class CPU extends MultiIOModule {
   // val WB  = Module(new Execute) (You may not need this one?)
 
 
-  /**
-    * Setup. You should not change this code
-    */
+  //testHarness init NO CHANGE PLS
   IF.testHarness.IMEMsetup     := testHarness.setupSignals.IMEMsignals
   ID.testHarness.registerSetup := testHarness.setupSignals.registerSignals
   MEM.testHarness.DMEMsetup    := testHarness.setupSignals.DMEMsignals
@@ -45,15 +42,14 @@ class CPU extends MultiIOModule {
   testHarness.testReadouts.registerRead := ID.testHarness.registerPeek
   testHarness.testReadouts.DMEMread     := MEM.testHarness.DMEMpeek
 
-  /**
-    spying stuff
-    */
   testHarness.regUpdates := ID.testHarness.testUpdates
   testHarness.memUpdates := MEM.testHarness.testUpdates
   testHarness.currentPC  := IF.testHarness.PC
 
 
-  /**
-    TODO: Your code here
-    */
+  //Wiring
+  IF.io.out     <>    IFBarrier.in
+  ID.io.in      <>    IFBarrier.out
+  
+
 }
