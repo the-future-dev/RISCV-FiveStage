@@ -37,15 +37,10 @@ class InstructionFetch extends MultiIOModule {
   testHarness.PC := IMEM.testHarness.requestedAddress
 
 
-  /**
-    * TODO: Your code here.
-    * 
-    * You should expand on or rewrite the code below.
-    */
+  //TODO
   io.PC := PC
   IMEM.io.instructionAddress := PC
-
-  // PC := PC + 4.U
+  PC := PC + 4.U
 
   val instruction = Wire(new Instruction)
   instruction := IMEM.io.instruction.asTypeOf(new Instruction)
