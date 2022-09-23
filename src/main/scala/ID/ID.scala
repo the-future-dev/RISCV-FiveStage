@@ -45,6 +45,7 @@ class InstructionDecode extends MultiIOModule {
 
   decoder.instruction := 0.U.asTypeOf(new Instruction)
 
+  //NEED TO CHECK PC DELAY
   //Handling PC
   currentPC :=io.in.pc
 }
