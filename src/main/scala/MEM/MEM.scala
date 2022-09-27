@@ -18,6 +18,8 @@ class MemoryFetch() extends MultiIOModule {
 
   val io = IO(
     new Bundle {
+      val in              = Input(new EXBundle)
+      val out             = Output(new MEMBundle)
     })
 
 
@@ -35,7 +37,15 @@ class MemoryFetch() extends MultiIOModule {
   /**
     * Your code here.
     */
-  DMEM.io.dataIn      := 0.U
-  DMEM.io.dataAddress := 0.U
-  DMEM.io.writeEnable := false.B
+  io.out.pc           := io.in.pc
+  
+  //DMEM handling     : now disabled
+  DMEM.io.dataIn      := 0.U   //writeEnable ? regData : writeData (32.W) [check disegno prof]
+  DMEM.io.dataAddress := 0.U      //writeAddress: DMEM
+  DMEM.io.writeEnable := false.B  //io.in.memWrite
+
+  //to WB
+  io.out.regWrite     := io.in.writeReg
+  io.out.regData      := io.in.regData        //? io.in.memRead
+  io.out.writeAddress := io.in.writeAddress
 }

@@ -51,15 +51,15 @@ class Decoder() extends Module {
 
     SW     -> List(N,        N,       Y,        N,       N,    branchType.DC, rs1,       imm,       STYPE,        ALUOps.ADD),
 
-    ADD    -> List(Y,        N,       N,        N,       N,    branchType.DC, rs1,       rs2,       ImmFormat.DC, ALUOps.ADD),
-    SUB    -> List(Y,        N,       N,        N,       N,    branchType.DC, rs1,       rs2,       ImmFormat.DC, ALUOps.SUB),
+    ADD    -> List(Y,        N,       N,        N,       N,    branchType.DC, rs1,       rs2,       IMFDC,        ALUOps.ADD),
+    SUB    -> List(Y,        N,       N,        N,       N,    branchType.DC, rs1,       rs2,       IMFDC,        ALUOps.SUB),
 
     /**      TODO: Fill in the blanks */
     ADDI   -> List(Y,        N,       N,        N,       N,    branchType.DC, rs1,       imm,       ITYPE,        ALUOps.ADD),
     )
 
 
-  val NOP = List(N, N, N, N, N, branchType.DC, rs1, rs2, ImmFormat.DC, ALUOps.DC)
+  val NOP = List(N, N, N, N, N, branchType.DC, rs1, rs2, IMFDC, ALUOps.DC)
 
   val decodedControlSignals = ListLookup(
     io.instruction.asUInt(),

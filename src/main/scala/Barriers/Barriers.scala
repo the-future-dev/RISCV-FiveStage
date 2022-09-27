@@ -1,6 +1,8 @@
 package FiveStage
 import chisel3._
 
+
+//?
 class IFBarrier extends Module {
     val io = IO(new Bundle{
         val in = Input(new IFBundle)
@@ -20,5 +22,34 @@ class IDBarrier extends Module {
         val in = Input(new IDBundle)
         val out = Output(new IDBundle)
     })
-    io.in <> io.out
+    val regs = Reg(new IDBundle)
+
+    regs   := io.in
+    io.out := regs
+}
+
+class EXBarrier extends Module {
+    val io = IO(new Bundle{
+        val in = Input(new EXBundle)
+        val out = Output(new MEMBundle)
+    })
+    val regs = Reg(new EXBundle)
+
+    regs   := io.in
+    io.out := regs
+}
+
+
+class MEMBarrier extends Module {
+        val io = IO(new Bundle {
+        val in = Input(new MEMBundle)
+        val out = Output(new MEMBundle)
+        // val lastMemValue = Input(UInt(32.W))
+    })
+    val regs = Reg(new MEMBundle)
+    regs   := io.in
+    io.out := regs
+//   val waitNext = RegInit(false.B)
+//   when (io.in.readDelaySignal === true.B) {
+//     waitNext := true.B
 }

@@ -1,6 +1,6 @@
 package FiveStage
 import chisel3._
-import chisel3.util.{ BitPat, MuxCase, MuxLookup }
+import chisel3.util.{ BitPat, MuxCase, MuxLookup, Cat, Fill}
 import chisel3.experimental.MultiIOModule
 
 import Op1Select._
@@ -22,6 +22,7 @@ class InstructionDecode extends MultiIOModule {
   val io = IO(
     new Bundle {
       val in = Input(new IFBundle)
+      val wbIn = Input(new WriteBackBundle)
 
       val out = Output(new IDBundle)
     }
@@ -31,11 +32,10 @@ class InstructionDecode extends MultiIOModule {
   val registers = Module(new Registers)
   val decoder   = Module(new Decoder).io
   
-  val currentPC = RegInit(UInt(32.W), 0.U)
-  currentPC :=io.in.pc
-  io.out.pc := currentPC
-
-  val immediateValue   = Wire(SInt())
+  // val currentPC = RegInit(UInt(32.W), 0.U)
+  // currentPC := io.in.pc
+  // io.out.pc := currentPC
+  io.out.pc     :=  io.in.pc
 
   /** Setup. You should not change this code */
   registers.testHarness.setup := testHarness.registerSetup
@@ -50,23 +50,40 @@ class InstructionDecode extends MultiIOModule {
   //        to REGISTERS
   registers.io.readAddress1 := Mux(decoder.op1Select === rs1, decoder.instruction.registerRs1,Mux(decoder.op1Select === Op1Select.PC, 0xFD.U(8.W), 0.U))
   registers.io.readAddress2 := Mux(decoder.immType === ImmFormat.STYPE, decoder.instruction.registerRs2, Mux(decoder.op2Select === rs2, decoder.instruction.registerRs2, 0.U))
-  
+  registers.io.writeEnable  := io.wbIn.writeEnable
+  registers.io.writeAddress := io.wbIn.writeAddress
+  registers.io.writeData    := io.wbIn.writeData
+
   //Signals to Execute
-  io.out.writeAddress := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
-  io.out.aluOP        := decoder.ALUop
-  io.out.writeEnable  := decoder.controlSignals.memWrite
-  io.out.readEnable   := decoder.controlSignals.memRead
-  io.out.writeReg     := decoder.controlSignals.regWrite
-
-  //TODO:
-    io.out.op1:= 0.U
-    io.out.op2:= 0.U
-    io.out.regData := 0.U
-
-  //Immediate
+  io.out.writeAddress   := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
+  io.out.aluOP          := decoder.ALUop
+  io.out.memWrite       := decoder.controlSignals.memWrite
+  io.out.memRead        := decoder.controlSignals.memRead
+  io.out.writeReg       := decoder.controlSignals.regWrite
   
-}
+  io.out.regData        := registers.io.readData2
 
+  val immediate = MuxLookup(decoder.immType, 0.S(12.W), Array(
+    ITYPE -> decoder.instruction.immediateIType,
+    STYPE -> decoder.instruction.immediateSType,
+    BTYPE -> decoder.instruction.immediateBType,
+    UTYPE -> decoder.instruction.immediateUType,
+    JTYPE -> decoder.instruction.immediateJType,
+    IMFDC -> 0.S(12.W)
+  )).asTypeOf(SInt(32.W)).asUInt
+
+  // TODO:
+  io.out.op1 := MuxLookup(decoder.op1Select, 0.U(32.W), Array(
+    rs1          -> registers.io.readData1,
+    PC           -> io.in.pc,
+    IMFDC        -> 0.U(32.W)
+  ))
+  io.out.op2 := MuxLookup(decoder.op2Select, 0.U(32.W), Array(
+      rs2          -> registers.io.readData2,
+      imm          -> immediate,
+      IMFDC        -> 0.U(32.W)
+  ))
+}
 
 // /**
 //   * DECODER to EX

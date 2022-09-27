@@ -125,3 +125,38 @@ class AllTestsWindows extends FlatSpec with Matchers {
     }
   }
 }
+
+
+
+class MyTest extends FlatSpec with Matchers {
+  behavior of "First Milestone: IF ID Barrier"
+  it should "desplay what is happening" in{
+    say(s"\t STARTING")
+
+    chisel3.iotesters.Driver.execute(Array("--generate-vcd-output", "on", "--backend-name", "treadle"),
+      () => new InstructionDecode())
+      {
+        c => new MyTestRunner(c)
+    } should be(true)
+  }
+}
+
+class MyTestRunner(c: InstructionDecode) extends chisel3.iotesters.PeekPokeTester(c){
+  say(s"INIT:\n")
+
+  for(i <- 0 until 45){
+    say(s"\n\n\n\nClock: $i\n")
+    // val input = scala.util.Random.nextInt(10)
+    // poke(c.io.PCIn, (input))
+    
+    // val o = peek(c.IFBarrier.PCOut)
+    // val o2 = peek(c.IF.io.PC)
+    // say(s"\nPC IF:\t$o2"
+    // say(s"\nPC barrier: $o")
+
+    // expect(c.io.PCOut, input)
+    step(1)
+  }
+
+  say("END:")
+}
