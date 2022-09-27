@@ -13,6 +13,6 @@ class WriteBack extends MultiIOModule {
   io.out.pc   := io.in.pc
 
   io.out.writeEnable  := io.in.regWrite
-  io.out.writeData    := io.in.regData
+  io.out.writeData    := io.in.writeData
   io.out.writeAddress := io.in.writeAddress
 }

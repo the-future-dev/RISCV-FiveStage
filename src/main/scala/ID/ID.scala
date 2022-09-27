@@ -59,9 +59,11 @@ class InstructionDecode extends MultiIOModule {
   io.out.aluOP          := decoder.ALUop
   io.out.memWrite       := decoder.controlSignals.memWrite
   io.out.memRead        := decoder.controlSignals.memRead
-  io.out.writeReg       := decoder.controlSignals.regWrite
+  io.out.regWrite       := decoder.controlSignals.regWrite
   
-  io.out.regData        := registers.io.readData2
+
+  //TODO
+  io.out.memData        := registers.io.readData2
 
   val immediate = MuxLookup(decoder.immType, 0.S(12.W), Array(
     ITYPE -> decoder.instruction.immediateIType,

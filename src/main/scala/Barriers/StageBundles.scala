@@ -12,8 +12,8 @@ class IDBundle extends Bundle {
   val op2 = UInt(32.W)
   val aluOP = UInt(4.W)
 
-  val writeReg      = Bool()
-  val regData       = UInt(32.W)
+  val regWrite      = Bool()
+  val memData       = UInt(32.W)
 
   val memRead       = Bool()
   val memWrite      = Bool()
@@ -25,8 +25,8 @@ class IDBundle extends Bundle {
 class EXBundle extends Bundle {
   val pc = UInt(32.W)
 
-  val writeReg      = Bool()
-  val regData       = UInt(32.W)  //from reading the register
+  val regWrite      = Bool()
+  val memData       = UInt(32.W)  //from reading the register
   val writeData     = UInt(32.W)  //result of the ALU op
 
   val memRead       = Bool()
@@ -39,7 +39,7 @@ class MEMBundle extends Bundle {
   val pc            = UInt(32.W)
 
   val regWrite      = Bool()
-  val regData       = UInt(32.W)
+  val writeData     = UInt(32.W)
   val writeAddress  = UInt(5.W)    //registers has 5.W lenght of address
 }
 

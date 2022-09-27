@@ -8,7 +8,7 @@ import chisel3.experimental._
 
 class CPU extends MultiIOModule {
 
-  //mine
+  //mine: addi passed
 
   val testHarness = IO(
     new Bundle {
