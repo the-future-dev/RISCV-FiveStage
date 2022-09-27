@@ -31,7 +31,7 @@ class IDBarrier extends Module {
 class EXBarrier extends Module {
     val io = IO(new Bundle{
         val in = Input(new EXBundle)
-        val out = Output(new MEMBundle)
+        val out = Output(new EXBundle)
     })
     val regs = Reg(new EXBundle)
 
@@ -41,7 +41,7 @@ class EXBarrier extends Module {
 
 
 class MEMBarrier extends Module {
-        val io = IO(new Bundle {
+    val io = IO(new Bundle {
         val in = Input(new MEMBundle)
         val out = Output(new MEMBundle)
         // val lastMemValue = Input(UInt(32.W))
@@ -52,4 +52,15 @@ class MEMBarrier extends Module {
 //   val waitNext = RegInit(false.B)
 //   when (io.in.readDelaySignal === true.B) {
 //     waitNext := true.B
+}
+
+class WBBarrier extends Module {
+    val io = IO(new Bundle{
+        val in = Input(new WriteBackBundle)
+        val out = Output(new WriteBackBundle)
+    })
+    val regs = Reg(new WriteBackBundle)
+
+    regs   := io.in
+    io.out := regs
 }
