@@ -19,7 +19,7 @@ import LogParser._
 
 object Manifest {
 
-  val singleTest = "addi.s"
+  val singleTest = "load.s"
 
   val nopPadded = true
 
@@ -129,7 +129,7 @@ class AllTestsWindows extends FlatSpec with Matchers {
 
 
 class MyTest extends FlatSpec with Matchers {
-  behavior of "First Milestone: IF ID Barrier"
+  behavior of "General structure: not pipelined"
   it should "desplay what is happening" in{
     say(s"\t STARTING")
 
