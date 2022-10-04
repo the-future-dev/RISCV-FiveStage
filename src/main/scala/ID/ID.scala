@@ -31,11 +31,10 @@ class InstructionDecode extends MultiIOModule {
   //initizlization of registers, decoder, PC
   val registers = Module(new Registers)
   val decoder   = Module(new Decoder).io
-  
+  io.out.pc     :=  io.in.pc
   // val currentPC = RegInit(UInt(32.W), 0.U)
   // currentPC := io.in.pc
   // io.out.pc := currentPC
-  io.out.pc     :=  io.in.pc
 
   /** Setup. You should not change this code */
   registers.testHarness.setup := testHarness.registerSetup
@@ -47,9 +46,13 @@ class InstructionDecode extends MultiIOModule {
     */
   decoder.instruction := io.in.instruction.asTypeOf(new Instruction)
 
+  val rs1address = decoder.instruction.registerRs1
+  val rs2address = decoder.instruction.registerRs2
+  val rdaddress = decoder.instruction.registerRd
+
   //        to REGISTERS
-  registers.io.readAddress1 := Mux(decoder.op1Select === rs1, decoder.instruction.registerRs1,Mux(decoder.op1Select === Op1Select.PC, 0xFD.U(8.W), 0.U))
-  registers.io.readAddress2 := Mux(decoder.immType === ImmFormat.STYPE, decoder.instruction.registerRs2, Mux(decoder.op2Select === rs2, decoder.instruction.registerRs2, 0.U))
+  registers.io.readAddress1 := Mux(decoder.op1Select === rs1, rs1address,Mux(decoder.op1Select === Op1Select.PC, 0xFD.U(8.W), 0.U))
+  registers.io.readAddress2 := Mux(decoder.immType === ImmFormat.STYPE, rs2address, Mux(decoder.op2Select === rs2, rs2address, 0.U))
   registers.io.writeEnable  := io.wbIn.writeEnable
   registers.io.writeAddress := io.wbIn.writeAddress
   registers.io.writeData    := io.wbIn.writeData
