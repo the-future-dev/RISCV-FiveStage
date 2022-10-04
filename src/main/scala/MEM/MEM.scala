@@ -40,9 +40,9 @@ class MemoryFetch() extends MultiIOModule {
   io.out.pc           := io.in.pc
   
   //DMEM handling     : now disabled
-  DMEM.io.dataIn      := 0.U   //writeEnable ? regData : writeData (32.W) [check disegno prof]
-  DMEM.io.dataAddress := 0.U      //writeAddress: DMEM
-  DMEM.io.writeEnable := false.B  //io.in.memWrite
+  DMEM.io.dataIn      := io.in.memData //regData : writeData (32.W) [check disegno prof]
+  DMEM.io.dataAddress := io.in.writeData      //writeAddress: DMEM
+  DMEM.io.writeEnable := io.in.memWrite
   
   // when(!io.in.memRead){
   //   DMEM.io.writeEnable := Mux(io.in.regWrite, 0.U, io.in.memWrite)
