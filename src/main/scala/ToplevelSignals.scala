@@ -80,9 +80,10 @@ object branchType {
   using them altogether.
   */
 object Op1Select {
-  val rs1 = 0.asUInt(1.W)
-  val PC  = 1.asUInt(1.W)
-  val DC  = 0.asUInt(1.W)
+  val rs1 = 0.asUInt(2.W)
+  val PC  = 1.asUInt(2.W)
+  val DC  = 2.asUInt(2.W)
+  val OP1_N = 3.asUInt(2.W)
 }
 
 object Op2Select {

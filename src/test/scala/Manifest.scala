@@ -99,6 +99,49 @@ class AllTests extends FlatSpec with Matchers {
   }
 }
 
+class PartsTests extends FlatSpec with Matchers {
+  val parts = Array(
+    "addi.s",
+    "add.s",
+    "arith.s",
+    "arithImm.s",
+    // "load.s",
+    // "load2.s",
+    // "jump.s",
+    // "jump2.s",
+    // "square_sim.s",
+    // "square.s",
+    // "forward1.s",
+    // "forward2.s",
+    // "arith.s",
+    // "arithImm.s",
+    // "BTreeO3.s",
+    // "BTreeManyO3.s",
+    // "constants.s",
+    // "naiveFib.s",
+    // "palindrome.s",
+    // "palindromeO3.s",
+  )
+  it should "just werk" in {
+    val werks = parts.filterNot(_ == "convolution.s").map{testname => 
+      say(s"testing $testname")
+      val opts = Manifest.allTestOptions(testname)
+      (testname, TestRunner.run(opts))
+    }
+    if(werks.foldLeft(true)(_ && _._2))
+      say(Console.GREEN + "All tests successful!" + Console.RESET)
+    else {
+      val success = werks.map(x => if(x._2) 1 else 0).sum
+      val total   = werks.size
+      say(s"$success/$total tests successful")
+      werks.foreach{ case(name, success) =>
+        val msg = if(success) Console.GREEN + s"$name successful" + Console.RESET
+        else Console.RED + s"$name failed" + Console.RESET
+        say(msg)
+      }
+    }
+  }
+}
 
 
 /**
