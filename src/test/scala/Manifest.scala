@@ -101,11 +101,13 @@ class AllTests extends FlatSpec with Matchers {
 
 class PartsTests extends FlatSpec with Matchers {
   val parts = Array(
-    "addi.s",
-    "add.s",
-    "arith.s",
-    "arithImm.s",
-    // "load.s",
+    // "addi.s",
+    // "add.s",
+    // "arith.s",
+    // "arithImm.s",
+    "load.s",
+    // "constants.s",
+
     // "load2.s",
     // "jump.s",
     // "jump2.s",
@@ -113,11 +115,8 @@ class PartsTests extends FlatSpec with Matchers {
     // "square.s",
     // "forward1.s",
     // "forward2.s",
-    // "arith.s",
-    // "arithImm.s",
     // "BTreeO3.s",
     // "BTreeManyO3.s",
-    // "constants.s",
     // "naiveFib.s",
     // "palindrome.s",
     // "palindromeO3.s",
