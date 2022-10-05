@@ -39,7 +39,7 @@ class MemoryFetch() extends MultiIOModule {
   io.out.pc           := io.in.pc
   
   //DMEM handling:
-  DMEM.io.dataIn      := 0.U              //regData : writeData (32.W) [check disegno prof]
+  DMEM.io.dataIn      := io.in.memData              //regData : writeData (32.W) [check disegno prof]
   DMEM.io.dataAddress := io.in.writeData
   DMEM.io.writeEnable := io.in.memWrite
   
