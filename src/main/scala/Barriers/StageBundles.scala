@@ -38,6 +38,7 @@ class EXBundle extends Bundle {
 class MEMBundle extends Bundle {
   val pc            = UInt(32.W)
 
+  val memRead       = Bool()
   val regWrite      = Bool()
   val writeData     = UInt(32.W)
   val writeAddress  = UInt(5.W)    //registers has 5.W lenght of address

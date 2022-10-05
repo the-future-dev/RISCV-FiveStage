@@ -19,6 +19,7 @@ class MemoryFetch() extends MultiIOModule {
   val io = IO(
     new Bundle {
       val in              = Input(new EXBundle)
+      val dmemReadResult  = Output(UInt(32.W))
       val out             = Output(new MEMBundle)
     })
 
@@ -34,17 +35,30 @@ class MemoryFetch() extends MultiIOModule {
   testHarness.testUpdates := DMEM.testHarness.testUpdates
 
 
-  /**
-    * Your code here.
-    */
+  // My code:
   io.out.pc           := io.in.pc
   
-  //DMEM handling     : now disabled
-  DMEM.io.dataIn      := io.in.memData //regData : writeData (32.W) [check disegno prof]
-  DMEM.io.dataAddress := io.in.writeData      //writeAddress: DMEM
+  //DMEM handling:
+  DMEM.io.dataIn      := 0.U              //regData : writeData (32.W) [check disegno prof]
+  DMEM.io.dataAddress := io.in.writeData
   DMEM.io.writeEnable := io.in.memWrite
   
-  // when(!io.in.memRead){
+  //to WB
+  io.out.regWrite     := io.in.regWrite
+  io.out.writeData    := io.in.writeData        //? io.in.memRead
+  io.out.writeAddress := io.in.writeAddress
+  io.out.memRead      := io.in.memRead
+  io.dmemReadResult   := DMEM.io.dataOut
+}
+
+
+// DMEM.io.dataAddress := io.in.writeData
+
+// DMEM.io.dataAddress := io.in.writeData
+// DMEM.io.dataIn := io.in.swRs2
+// io.out.dataOut := io.in.writeData
+
+// when(!io.in.memRead){
   //   DMEM.io.writeEnable := Mux(io.in.regWrite, 0.U, io.in.memWrite)
 
   //   when(io.in.memWrite){
@@ -56,10 +70,3 @@ class MemoryFetch() extends MultiIOModule {
   //     DMEM.io.dataAddress := io.in.writeAddress
   //   }
   // }
-  
-
-  //to WB
-  io.out.regWrite     := io.in.regWrite
-  io.out.writeData    := io.in.writeData        //? io.in.memRead
-  io.out.writeAddress := io.in.writeAddress
-}

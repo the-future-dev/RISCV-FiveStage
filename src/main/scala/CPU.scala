@@ -57,5 +57,6 @@ class CPU extends MultiIOModule {
   MEM.io.in     <>    EXBarrier.out
   MEM.io.out    <>    MEMBarrier.in
   WB.io.in      <>    MEMBarrier.out
+  WB.io.dmemData<>    MEM.io.dmemReadResult
   WB.io.out     <>    ID.io.wbIn
 }
