@@ -69,8 +69,7 @@ class Decoder() extends Module {
 //LUI
 //AUIPC
     LW     -> List(Y, Y, N, N, N, branchType.DC, rs1,   imm, ITYPE, ALUOps.ADD),
-// signal         regWrite, memRead, memWrite, branch,  jump, branchType,    Op1Select, Op2Select, ImmSelect,    ALUOp
-    SW     -> List(N,         N,        Y,       N,     N,    branchType.DC,    rs1,    imm,    STYPE,    ALUOps.ADD),
+    SW     -> List(N, N, Y, N, N, branchType.DC, rs1,   imm, STYPE, ALUOps.ADD),
 //JAL
 //JALR
 //BEQ

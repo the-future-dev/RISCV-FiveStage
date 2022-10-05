@@ -25,14 +25,13 @@ class CPU extends MultiIOModule {
   val IDBarrier  = Module(new IDBarrier).io
   val EXBarrier  = Module(new EXBarrier).io
   val MEMBarrier = Module(new MEMBarrier).io
-  // val WBBarrier  = Module(new WBBarrier).io
 
   //Modules init
   val ID  = Module(new InstructionDecode)
   val IF  = Module(new InstructionFetch)
   val EX  = Module(new Execute)
   val MEM = Module(new MemoryFetch)
-  val WB  = Module(new WriteBack) //(You may not need this one?)
+  val WB  = Module(new WriteBack) //(I may not need this one?)
 
 
   //testHarness init NO CHANGE PLS
@@ -56,7 +55,8 @@ class CPU extends MultiIOModule {
   EX.io.out     <>    EXBarrier.in
   MEM.io.in     <>    EXBarrier.out
   MEM.io.out    <>    MEMBarrier.in
+
   WB.io.in      <>    MEMBarrier.out
-  WB.io.dmemData<>    MEM.io.dmemReadResult
-  WB.io.out     <>    ID.io.wbIn
+  WB.io.dmemData<>    MEM.io.dmemReadResult   //the data memory gives the value coordinnated to the data exiting the MEMBarrier
+  WB.io.out     <>    ID.io.wbIn              //to execute the WB
 }
