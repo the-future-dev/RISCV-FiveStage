@@ -59,4 +59,9 @@ class CPU extends MultiIOModule {
   WB.io.in      <>    MEMBarrier.out
   WB.io.dmemData<>    MEM.io.dmemReadResult   //the data memory gives the value coordinnated to the data exiting the MEMBarrier
   WB.io.out     <>    ID.io.wbIn              //to execute the WB
+
+  //jump managing
+  EX.io.jump    <>    IF.io.jump
+  EX.io.next_pc <>    IF.io.next_pc
+  
 }

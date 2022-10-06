@@ -20,11 +20,11 @@ class InstructionFetch extends MultiIOModule {
     */
   val io = IO(
     new Bundle {
-      val out = Output(new IFBundle)
-
-      // val nextPC = Input(UInt(32.W))
-      // val ? = Input(Bool())
       //stall | jump | stopped
+      val next_pc = Input(UInt(32.W))
+      val jump = Input(Bool())
+
+      val out = Output(new IFBundle)
     })
 
 

@@ -101,7 +101,7 @@ class AllTests extends FlatSpec with Matchers {
 
 class PartsTests extends FlatSpec with Matchers {
   val parts = Array(
-    //Milestone 1
+    //Milestone 1 - OK for now
     "addi.s",
     "add.s",
     "arith.s",
@@ -112,7 +112,7 @@ class PartsTests extends FlatSpec with Matchers {
     "forward2.s",
 
     //Milestone 2
-    // "constants.s",
+    "constants.s",
     // "jump.s",
     // "jump2.s",
     // "square_sim.s",
