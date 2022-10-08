@@ -71,9 +71,9 @@ class Decoder() extends Module {
     AUIPC  -> List(Y, N, N, N, N, branchType.DC, PC,     imm, UTYPE, ALUOps.ADD),
     LW     -> List(Y, Y, N, N, N, branchType.DC, rs1,    imm, ITYPE, ALUOps.ADD),
     SW     -> List(N, N, Y, N, N, branchType.DC, rs1,    imm, STYPE, ALUOps.ADD),
-//JAL              (N in practice -> check)
+//JAL          (Write Register inside ID)
     JAL    -> List(Y, N, N, N, Y, branchType.DC, PC,     imm, JTYPE, ALUOps.DC),
-//JALR             (N in practice -> check)
+//JALR         (Write Register inside ID)
     JALR   -> List(Y, N, N, N, Y, branchType.DC, rs1,    imm, ITYPE, ALUOps.DC),
 //BEQ
     BEQ    -> List(N, N, N, Y, Y,  branchType.beq,rs1,   rs2, BTYPE, ALUOps.DC),
