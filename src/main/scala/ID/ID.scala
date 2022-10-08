@@ -108,9 +108,10 @@ class InstructionDecode extends MultiIOModule {
 
   when(branching){
     io.jump := MuxLookup(decoder.branchType, false.B, branchTypeMap)
+    io.next_pc := io.in.pc + immediate
   }
 
-  when(io.jump){
+  when(jumping && decoder.controlSignals.regWrite){
     io.next_pc := io.in.pc + immediate
     io.out.regWrite := false.B
 
