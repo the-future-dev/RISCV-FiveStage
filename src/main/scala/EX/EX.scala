@@ -10,9 +10,6 @@ class Execute extends MultiIOModule {
     new Bundle {
       val in = Input(new IDBundle)
 
-      val next_pc = Output(UInt(32.W))
-      val jump = Output(Bool())
-
       val out = Output(new EXBundle)
     }
   )
@@ -47,8 +44,4 @@ class Execute extends MultiIOModule {
   io.out.memWrite     := io.in.memWrite
   
   io.out.writeAddress := io.in.writeAddress
-
-  //TO -> INSTRUCTION FETCH
-  io.next_pc:= 0.U
-  io.jump := false.B
 }

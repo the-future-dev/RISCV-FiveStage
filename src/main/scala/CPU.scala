@@ -61,7 +61,6 @@ class CPU extends MultiIOModule {
   WB.io.out     <>    ID.io.wbIn              //to execute the WB
 
   //jump managing
-  EX.io.jump    <>    IF.io.jump
-  EX.io.next_pc <>    IF.io.next_pc
-  
+  ID.io.jump    <>    IF.io.jump
+  ID.io.next_pc <>    IF.io.next_pc
 }
