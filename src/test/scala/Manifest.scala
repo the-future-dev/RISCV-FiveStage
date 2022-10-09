@@ -19,7 +19,7 @@ import LogParser._
 
 object Manifest {
 
-  val singleTest = "jump2.s"
+  val singleTest = "jump.s"
 
   val nopPadded = true
 
@@ -29,7 +29,7 @@ object Manifest {
     printParsedProgram = true,
     printVMtrace       = false,
     printVMfinal       = false,
-    printMergedTrace   = true,
+    printMergedTrace   = false,
     printBinary        = false,
     nopPadded          = nopPadded,
     breakPoints        = Nil, // not implemented
@@ -109,16 +109,15 @@ class PartsTests extends FlatSpec with Matchers {
     "load2.s",
     "forward1.s",
     "forward2.s",
-    // "branchProfiling.s",
+    
 
     //Milestone 2
-    "jump.s",
-    "constants.s",
-    // "square_sim.s",
+    // "naiveFib.s",
+    // "branchProfiling.s",
+    // "constants.s",
     // "square.s",
     // "BTreeO3.s",
     // "BTreeManyO3.s",
-    // "naiveFib.s",
     // "palindrome.s",
     // "palindromeO3.s",
   )
