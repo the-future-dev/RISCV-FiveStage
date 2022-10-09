@@ -21,8 +21,7 @@ class InstructionFetch extends MultiIOModule {
   val io = IO(
     new Bundle {
       //stall | jump | stopped
-      val next_pc = Input(UInt(32.W))
-      val jump = Input(Bool())
+      val inJ = Input(new JumpBundle)
 
       val out = Output(new IFBundle)
     })
@@ -40,7 +39,7 @@ class InstructionFetch extends MultiIOModule {
   
   //Handling the program counter
   io.out.pc := pc
-  pc := Mux(io.jump, io.next_pc, pc + 4.U)
+  pc := Mux(io.inJ.jump, io.inJ.nextPC, pc + 4.U)
 
   //Handling the instruction fetch <=> instruction
   IMEM.io.instructionAddress := pc

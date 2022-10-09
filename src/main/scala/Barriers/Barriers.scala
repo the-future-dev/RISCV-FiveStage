@@ -61,3 +61,14 @@ class WBBarrier extends Module {
     regs   := io.in
     io.out := regs
 }
+
+class JBarrier extends Module {
+    val io = IO(new Bundle{
+        val in = Input(new JumpBundle)
+        val out = Output(new JumpBundle)
+    })
+    val regs = Reg(new JumpBundle)
+    regs := io.in
+    io.out := regs 
+    // io.out := io.in
+}

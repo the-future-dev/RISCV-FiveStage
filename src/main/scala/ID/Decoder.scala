@@ -89,7 +89,6 @@ class Decoder() extends Module {
     BGEU   -> List(N, N, N, Y, Y, branchType.gteu,rs1,   rs2, BTYPE, ALUOps.DC),
     )
 
-
   val NOP = List(N, N, N, N, N, branchType.DC, rs1, rs2, IMFDC, ALUOps.DC)
 
   val decodedControlSignals = ListLookup(

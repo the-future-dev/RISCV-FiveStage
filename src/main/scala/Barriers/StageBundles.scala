@@ -50,3 +50,8 @@ class WriteBackBundle extends Bundle {
   val writeAddress  = UInt(5.W)
   val writeData     = UInt(32.W)
 }
+
+class JumpBundle extends Bundle {
+  val jump          = Bool()
+  val nextPC        = UInt(32.W)
+}

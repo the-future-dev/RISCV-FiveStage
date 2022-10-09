@@ -24,8 +24,7 @@ class InstructionDecode extends MultiIOModule {
       val in = Input(new IFBundle)
       val wbIn = Input(new WriteBackBundle)
 
-      val next_pc = Output(UInt(32.W))
-      val jump = Output(Bool())
+      val outJ = Output(new JumpBundle)
 
       val out = Output(new IDBundle)
     }
@@ -103,20 +102,20 @@ class InstructionDecode extends MultiIOModule {
   val jumping = decoder.controlSignals.jump
   val branching = decoder.controlSignals.branch
 
-  io.jump   := jumping
-  io.next_pc := 0.U
+  io.outJ.jump   := jumping
+  io.outJ.nextPC := 0.U
 
   when(branching){
-    io.jump := MuxLookup(decoder.branchType, false.B, branchTypeMap)
-    io.next_pc := io.in.pc + immediate
+    io.outJ.jump := MuxLookup(decoder.branchType, false.B, branchTypeMap)
+    io.outJ.nextPC := io.in.pc + immediate
   }
 
   when(jumping && decoder.controlSignals.regWrite){
-    io.next_pc := io.in.pc + immediate
+    io.outJ.nextPC := io.in.pc + immediate
     io.out.regWrite := false.B
 
     registers.io.writeEnable  := true.B
-    registers.io.writeAddress := decoder.instruction.registerRd
+    registers.io.writeAddress := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
     registers.io.writeData    := io.in.pc + 4.U
   }
 

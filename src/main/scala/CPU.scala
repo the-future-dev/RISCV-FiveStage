@@ -26,6 +26,8 @@ class CPU extends MultiIOModule {
   val EXBarrier  = Module(new EXBarrier).io
   val MEMBarrier = Module(new MEMBarrier).io
 
+  val JBarrier = Module(new JBarrier).io
+
   //Modules init
   val ID  = Module(new InstructionDecode)
   val IF  = Module(new InstructionFetch)
@@ -61,6 +63,7 @@ class CPU extends MultiIOModule {
   WB.io.out     <>    ID.io.wbIn              //to execute the WB
 
   //jump managing
-  ID.io.jump    <>    IF.io.jump
-  ID.io.next_pc <>    IF.io.next_pc
+  ID.io.outJ       <>    JBarrier.in
+  JBarrier.out     <>     IF.io.inJ
+
 }
