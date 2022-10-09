@@ -66,4 +66,7 @@ class CPU extends MultiIOModule {
   ID.io.outJ       <>    JBarrier.in
   JBarrier.out     <>     IF.io.inJ
 
+  //ID enhancing
+  EX.io.out     <>    ID.io.exIn
+  MEM.io.out    <>    ID.io.memIn
 }

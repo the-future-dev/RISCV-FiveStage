@@ -109,6 +109,8 @@ class PartsTests extends FlatSpec with Matchers {
     "load2.s",
     "forward1.s",
     "forward2.s",
+    "jump.s",
+    "jump2.s",
     
 
     //Milestone 2

@@ -23,6 +23,8 @@ class InstructionDecode extends MultiIOModule {
     new Bundle {
       val in = Input(new IFBundle)
       val wbIn = Input(new WriteBackBundle)
+      val exIn = Input(new EXBundle)
+      val memIn = Input(new MEMBundle)
 
       val outJ = Output(new JumpBundle)
 
@@ -38,6 +40,16 @@ class InstructionDecode extends MultiIOModule {
   registers.testHarness.setup := testHarness.registerSetup
   testHarness.registerPeek    := registers.io.readData1
   testHarness.testUpdates     := registers.testHarness.testUpdates
+  def clearSomeOutput() = {
+    io.out.op1          := 0.U
+    io.out.op2          := 0.U
+    io.out.aluOP        := ALUOps.DC
+    io.out.memData      := 0.U
+    io.out.writeAddress   := 0.U
+    io.out.regWrite  := false.B
+    io.out.memRead   := false.B
+    io.out.memWrite     := false.B
+  }
 
   //DECODER SETUP
   decoder.instruction := io.in.instruction.asTypeOf(new Instruction)
@@ -117,6 +129,7 @@ class InstructionDecode extends MultiIOModule {
     registers.io.writeEnable  := true.B
     registers.io.writeAddress := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
     registers.io.writeData    := io.in.pc + 4.U
+    clearSomeOutput()
   }
 
     // printf("[0x%x] imm: 0x%x, rs1S: %d, rs2S: %d, memRead: %d, memWrite: %d," +
@@ -126,3 +139,4 @@ class InstructionDecode extends MultiIOModule {
     //         // regSourceOp1, io.stall, stalled,
     //         decoder.instruction.instruction)
 }
+
