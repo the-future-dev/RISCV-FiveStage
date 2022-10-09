@@ -353,3 +353,7 @@ target/
 scratchpad.scala
 log/
 index.html
+
+# tests
+*.vcd
+*.gtkw
