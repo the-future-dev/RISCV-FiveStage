@@ -38,7 +38,6 @@ class MemoryFetch() extends MultiIOModule {
   testHarness.testUpdates := DMEM.testHarness.testUpdates
 
   //DMEM handling:
-  //DMEM handling:
   DMEM.io.dataIn      := io.in.memData
   DMEM.io.dataAddress := io.in.writeData
   DMEM.io.writeEnable := Mux(io.in.regWrite, false.B, io.in.memWrite)
