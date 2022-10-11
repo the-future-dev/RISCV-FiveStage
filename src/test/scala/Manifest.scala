@@ -19,7 +19,7 @@ import LogParser._
 
 object Manifest {
 
-  val singleTest = "BTreeO3.s"
+  val singleTest = "load.s"
   // val singleTest = "branchProfiling.s"
   // val singleTest = "convolution.s"
 
@@ -36,7 +36,7 @@ object Manifest {
     nopPadded          = nopPadded,
     breakPoints        = Nil, // not implemented
     testName           = singleTest,
-    maxSteps           = 150000)
+    maxSteps           = 30000)
 
 
   val allTestOptions: String => TestOptions = name => TestOptions(
@@ -104,13 +104,13 @@ class AllTests extends FlatSpec with Matchers {
 class PartsTests extends FlatSpec with Matchers {
   val parts = Array(
     //Milestone 1 - OK for now
-    "arith.s",
-    "addi.s",
-    "arithImm.s",
-    "forward1.s",
-    "forward2.s",
-    "load.s",
-    "load2.s",
+    // "arith.s",
+    // "addi.s",
+    // "arithImm.s",
+    // "forward1.s",
+    // "forward2.s",
+    // "load.s",
+    // "load2.s",
     
 
     //Milestone 2

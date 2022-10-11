@@ -21,94 +21,114 @@ class InstructionDecode extends MultiIOModule {
 
   val io = IO(
     new Bundle {
-      val in = Input(new IFBundle)
-      val wbIn = Input(new WriteBackBundle)
-      val exIn = Input(new EXBundle)
-      val memIn = Input(new MEMBundle)
+      val in    = Input(new IFBundle)
+      val wb    = Input(new WriteBackBundle)
+      val ex    = Input(new EXBundle)
+      val mem   = Input(new MEMBundle)
 
-      val outJ = Output(new JumpBundle)
-
-      val out = Output(new IDBundle)
+      val outJ  = Output(new JumpBundle)
+      // val stall = Output(Bool())
+      val out   = Output(new IDBundle)
     }
   )
 
-  val registers = Module(new Registers)
-  val decoder   = Module(new Decoder).io
-  io.out.pc     :=  io.in.pc
+  //state
+  // val stalled                 = RegInit(false.B)
+  
+  val registers               = Module(new Registers)
+  val decoder                 = Module(new Decoder).io
 
   /** Setup. You should not change this code */
   registers.testHarness.setup := testHarness.registerSetup
   testHarness.registerPeek    := registers.io.readData1
   testHarness.testUpdates     := registers.testHarness.testUpdates
-  def clearSomeOutput() = {
-    io.out.op1          := 0.U
-    io.out.op2          := 0.U
-    io.out.aluOP        := ALUOps.DC
-    io.out.memData      := 0.U
-    io.out.writeAddress   := 0.U
-    io.out.regWrite  := false.B
-    io.out.memRead   := false.B
-    io.out.memWrite     := false.B
-  }
 
-  //DECODER SETUP
-  decoder.instruction := io.in.instruction.asTypeOf(new Instruction)
+  def nothingMoreToDo() = {
+    io.out.op1                := 0.U
+    io.out.op2                := 0.U
+    io.out.aluOP              := ALUOps.DC
+    io.out.memData            := 0.U
+    io.out.writeAddress       := 0.U
+    io.out.regWrite           := false.B
+    io.out.memRead            := false.B
+    io.out.memWrite           := false.B
+  }
+  //SETUP:
+  io.out.pc                   :=  io.in.pc
+  // io.stall                    := stalled
+  decoder.instruction         := io.in.instruction.asTypeOf(new Instruction)
 
   val rs1address = decoder.instruction.registerRs1
   val rs2address = decoder.instruction.registerRs2
   val rdaddress = decoder.instruction.registerRd
 
-  //        to REGISTERS                                                                                            
-  registers.io.readAddress1 := Mux(decoder.op1Select === rs1, rs1address,Mux(decoder.op1Select === Op1Select.PC, 0xFD.U(8.W), 0.U))
-  registers.io.readAddress2 := Mux(decoder.immType === ImmFormat.STYPE, rs2address, Mux(decoder.op2Select === rs2, rs2address, 0.U))
+  //Stalling managing
+  // when(io.ex.aluOP!= ALUOps.DC && io.ex.memRead && (io.ex.writeData === rs2address || io.ex.writeData === rs1address)) {
+  //   io.stall := true.B
+  // }.otherwise{
+  //   io.stall := false.B
+  // }
+
+  //to REGISTERS                                                                                            
+  registers.io.readAddress1   := rs1address
+  registers.io.readAddress2   := rs2address
 
     //WB
-  registers.io.writeEnable  := io.wbIn.writeEnable
-  registers.io.writeAddress := io.wbIn.writeAddress
-  registers.io.writeData    := io.wbIn.writeData
+  registers.io.writeEnable    := io.wb.writeEnable
+  registers.io.writeAddress   := io.wb.writeAddress
+  registers.io.writeData      := io.wb.writeData
 
   //TO -> EXECUTE
-  io.out.writeAddress   := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
-  io.out.aluOP          := decoder.ALUop
-  io.out.memWrite       := decoder.controlSignals.memWrite
-  io.out.memRead        := decoder.controlSignals.memRead
-  io.out.regWrite       := decoder.controlSignals.regWrite
-  io.out.memData        := registers.io.readData2
+  io.out.writeAddress         := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
+  io.out.aluOP                := decoder.ALUop
+  io.out.memWrite             := decoder.controlSignals.memWrite
+  io.out.memRead              := decoder.controlSignals.memRead
+  io.out.regWrite             := decoder.controlSignals.regWrite
+  io.out.memData              := registers.io.readData2
 
-  //setup
-  def sext(value: SInt, width: Int = 32) = value.asTypeOf(SInt(width.W)).asUInt
-
+    //setup
   val immediate = MuxLookup(decoder.immType, 0.S(12.W), Array(
-    ITYPE -> decoder.instruction.immediateIType,
-    STYPE -> decoder.instruction.immediateSType,
-    BTYPE -> decoder.instruction.immediateBType,
-    UTYPE -> decoder.instruction.immediateUType,
-    JTYPE -> decoder.instruction.immediateJType,
+    ITYPE             -> decoder.instruction.immediateIType,
+    STYPE             -> decoder.instruction.immediateSType,
+    BTYPE             -> decoder.instruction.immediateBType,
+    UTYPE             -> decoder.instruction.immediateUType,
+    JTYPE             -> decoder.instruction.immediateJType,
     IMFDC -> 0.S(12.W)
   )).asTypeOf(SInt(32.W)).asUInt
 
   val a = MuxLookup(decoder.op1Select, 0.U(32.W), Array(
-    rs1          -> registers.io.readData1,
-    PC           -> 0.U(5.W),
-    IMFDC        -> 0.U(5.W)
+    rs1              -> Mux(io.ex.regWrite && (io.ex.writeAddress === rs1address), io.ex.writeData,
+                          Mux(io.mem.regWrite && (io.mem.writeAddress === rs1address), io.mem.writeData,
+                            Mux(io.wb.writeEnable && (io.wb.writeAddress === rs1address), io.wb.writeData, registers.io.readData1
+                            )
+                          )
+                        ),
+    PC              -> 0.U(5.W),
+    IMFDC           -> 0.U(5.W)
   ))
 
   val b = MuxLookup(decoder.op2Select, 0.U(32.W), Array(
-      rs2          -> registers.io.readData2,
-      imm          -> immediate,
-      IMFDC        -> 0.U(32.W)
+    rs2             ->  Mux(io.ex.regWrite && (io.ex.writeAddress === rs2address), io.ex.writeData,
+                          Mux(io.mem.regWrite && (io.mem.writeAddress === rs2address), io.mem.writeData,
+                            Mux(io.wb.writeEnable && (io.wb.writeAddress === rs2address), io.wb.writeData, registers.io.readData2
+                            )
+                          )
+                        ),
+    imm             -> immediate,
+    IMFDC           -> 0.U(32.W)
   ))
+  //TO -> EXECUTE bis :>
   io.out.op1 := a
   io.out.op2 := b
-
+  
   //TO -> INSTRUCTION FETCH
   val branchTypeMap = Array(
-    branchType.beq -> (a === b),
-    branchType.neq -> (a =/= b),
-    branchType.gte -> (a.asSInt >= b.asSInt),
+    branchType.beq  -> (a === b),
+    branchType.neq  -> (a =/= b),
+    branchType.gte  -> (a.asSInt >= b.asSInt),
     branchType.gteu -> (a >= b),
-    branchType.lt -> (a.asSInt < b.asSInt),
-    branchType.ltu -> (a < b)
+    branchType.lt   -> (a.asSInt < b.asSInt),
+    branchType.ltu  -> (a < b)
   )
 
   val jumping = decoder.controlSignals.jump
@@ -130,7 +150,7 @@ class InstructionDecode extends MultiIOModule {
     registers.io.writeEnable  := true.B
     registers.io.writeAddress := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
     registers.io.writeData    := io.in.pc + 4.U
-    clearSomeOutput()
+    nothingMoreToDo()
   }
 
     // printf("[0x%x] imm: 0x%x, rs1S: %d, rs2S: %d, memRead: %d, memWrite: %d," +
@@ -139,5 +159,9 @@ class InstructionDecode extends MultiIOModule {
     //         decoder.controlSignals.memRead.asUInt, decoder.controlSignals.memWrite.asUInt,
     //         // regSourceOp1, io.stall, stalled,
     //         decoder.instruction.instruction)
+  // stalled := io.stall
+  // when(io.stall){
+  //   nothingMoreToDo()
+  // }
 }
 

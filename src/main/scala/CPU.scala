@@ -60,13 +60,16 @@ class CPU extends MultiIOModule {
 
   WB.io.in      <>    MEMBarrier.out
   WB.io.dmemData<>    MEM.io.dmemReadResult   //the data memory gives the value coordinnated to the data exiting the MEMBarrier
-  WB.io.out     <>    ID.io.wbIn              //to execute the WB
+  WB.io.out     <>    ID.io.wb                //to execute the WB
+
+  //stalling managing
+  // IF.io.stall   <>    ID.io.stall
 
   //jump managing
-  ID.io.outJ       <>    JBarrier.in
-  JBarrier.out     <>     IF.io.inJ
+  ID.io.outJ    <>    JBarrier.in
+  JBarrier.out  <>    IF.io.inJ
 
   //ID enhancing
-  EX.io.out     <>    ID.io.exIn
-  MEM.io.out    <>    ID.io.memIn
+  EX.io.out     <>    ID.io.ex
+  MEM.io.out    <>    ID.io.mem
 }

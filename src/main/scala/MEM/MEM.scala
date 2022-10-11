@@ -46,6 +46,8 @@ class MemoryFetch() extends MultiIOModule {
   io.out.regWrite     := io.in.regWrite
   io.out.writeData    := io.in.writeData
   io.out.writeAddress := io.in.writeAddress
+
+  //read memory
   io.out.memRead      := io.in.memRead
   io.dmemReadResult   := DMEM.io.dataOut
 }
