@@ -357,3 +357,4 @@ index.html
 # tests
 *.vcd
 *.gtkw
+*.s.vcd

@@ -123,7 +123,8 @@ class InstructionDecode extends MultiIOModule {
   }
 
   when(jumping && decoder.controlSignals.regWrite){
-    io.outJ.nextPC := Mux(decoder.immType === JTYPE, io.in.pc + immediate, (io.in.pc + immediate +decoder.instruction.registerRs1) )
+    io.outJ.nextPC := Mux(decoder.immType === JTYPE, io.in.pc + immediate,
+      ((registers.io.readData1 + immediate) & "hFFFF_FFFE".U(32.W)))
     io.out.regWrite := false.B
 
     registers.io.writeEnable  := true.B

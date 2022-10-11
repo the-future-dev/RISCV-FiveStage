@@ -20,7 +20,7 @@ import LogParser._
 object Manifest {
 
   // val singleTest = "BTreeO3.s"
-  val singleTest = "load2.s"
+  val singleTest = "jump.s"
 
   val nopPadded = true
 
@@ -103,26 +103,25 @@ class AllTests extends FlatSpec with Matchers {
 class PartsTests extends FlatSpec with Matchers {
   val parts = Array(
     //Milestone 1 - OK for now
-    "addi.s",
-    "add.s",
-    "arith.s",
-    "arithImm.s",
-    "load2.s",
-    "forward1.s",
-    "forward2.s",
-    "jump.s",
-    "jump2.s",
+    // "addi.s",
+    // "add.s",
+    // "arith.s",
+    // "arithImm.s",
+    // "load2.s",
+    // "forward1.s",
+    // "forward2.s",
+    // "jump.s",
+    // "jump2.s",
     
 
     //Milestone 2
-    // "naiveFib.s",
-    // "branchProfiling.s",
-    // "constants.s",
-    // "square.s",
-    // "BTreeO3.s",
-    // "BTreeManyO3.s",
-    // "palindrome.s",
-    // "palindromeO3.s",
+    "naiveFib.s",
+    "constants.s",
+    "square.s",
+    "BTreeO3.s",
+    "BTreeManyO3.s",
+    "palindrome.s",
+    "palindromeO3.s",
   )
   it should "just werk" in {
     val werks = parts.filterNot(_ == "convolution.s").map{testname => 
