@@ -19,8 +19,9 @@ import LogParser._
 
 object Manifest {
 
-  // val singleTest = "BTreeO3.s"
-  val singleTest = "jump.s"
+  val singleTest = "BTreeO3.s"
+  // val singleTest = "branchProfiling.s"
+  // val singleTest = "convolution.s"
 
   val nopPadded = true
 
@@ -28,14 +29,14 @@ object Manifest {
     printIfSuccessful  = true,
     printErrors        = true,
     printParsedProgram = false,
-    printVMtrace       = true,
+    printVMtrace       = false,
     printVMfinal       = false,
-    printMergedTrace   = false,
+    printMergedTrace   = true,
     printBinary        = false,
     nopPadded          = nopPadded,
     breakPoints        = Nil, // not implemented
     testName           = singleTest,
-    maxSteps           = 1000)
+    maxSteps           = 150000)
 
 
   val allTestOptions: String => TestOptions = name => TestOptions(
