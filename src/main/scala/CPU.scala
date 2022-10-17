@@ -63,7 +63,7 @@ class CPU extends MultiIOModule {
   WB.io.out     <>    ID.io.wb                //to execute the WB
 
   //stalling managing
-  // IF.io.stall   <>    ID.io.stall
+  IF.io.stall   <>    ID.io.stall
 
   //jump managing
   ID.io.outJ    <>    JBarrier.in
