@@ -41,14 +41,10 @@ class MEMBarrier extends Module {
     val io = IO(new Bundle {
         val in = Input(new MEMBundle)
         val out = Output(new MEMBundle)
-        // val lastMemValue = Input(UInt(32.W))
     })
     val regs = Reg(new MEMBundle)
     regs   := io.in
     io.out := regs
-//   val waitNext = RegInit(false.B)
-//   when (io.in.readDelaySignal === true.B) {
-//     waitNext := true.B
 }
 
 class WBBarrier extends Module {

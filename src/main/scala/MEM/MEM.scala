@@ -30,9 +30,7 @@ class MemoryFetch() extends MultiIOModule {
   io.out.pc           := io.in.pc
   
   val DMEM = Module(new DMEM)
-  /**
-  * Setup. You should not change this code
-  */
+  /** Setup. You should not change this code */
   DMEM.testHarness.setup  := testHarness.DMEMsetup
   testHarness.DMEMpeek    := DMEM.io.dataOut
   testHarness.testUpdates := DMEM.testHarness.testUpdates

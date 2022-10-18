@@ -57,6 +57,9 @@ class InstructionDecode extends MultiIOModule {
   val sigEX_STALL             = io.ex.regWrite  && io.ex.memRead  && (io.in.instruction.registerRs1 === io.ex.writeAddress || io.in.instruction.registerRs2 === io.ex.writeAddress)
   val sigMEM_STALL            = io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
 
+  // printf("%d: stall {ex: %d | mem1: %d |mem2: %d }\n", io.out.pc, sigEX_STALL, sigMEM_STALL, sigMEM_DELAY)
+  //printf("%d:> %d\n", io.out.pc, (sigMEM_DELAY && !sigMEM_STALL))
+
   io.stall                    := sigEX_STALL || sigMEM_STALL || stalled2
   stalled                     := sigEX_STALL || sigMEM_STALL
   stalled2                    := sigEX_STALL
@@ -70,14 +73,6 @@ class InstructionDecode extends MultiIOModule {
   registers.io.writeEnable    := io.wb.writeEnable
   registers.io.writeAddress   := io.wb.writeAddress
   registers.io.writeData      := io.wb.writeData
-
-  //TO -> EXECUTE
-  io.out.writeAddress         := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
-  io.out.aluOP                := decoder.ALUop
-  io.out.memWrite             := decoder.controlSignals.memWrite
-  io.out.memRead              := decoder.controlSignals.memRead
-  io.out.regWrite             := decoder.controlSignals.regWrite
-  io.out.memData              := registers.io.readData2
 
     //setup
   val immediate = MuxLookup(decoder.immType, 0.S(12.W), Array(
@@ -110,7 +105,13 @@ class InstructionDecode extends MultiIOModule {
     imm             -> immediate,
     IMFDC           -> 0.U(32.W)
   ))
-  //TO -> EXECUTE bis :>
+    //TO -> EXECUTE
+  io.out.writeAddress         := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
+  io.out.aluOP                := decoder.ALUop
+  io.out.memWrite             := decoder.controlSignals.memWrite
+  io.out.memRead              := decoder.controlSignals.memRead
+  io.out.regWrite             := decoder.controlSignals.regWrite
+  io.out.memData              := a
   io.out.op1 := a
   io.out.op2 := b
   

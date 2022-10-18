@@ -19,11 +19,11 @@ import LogParser._
 
 object Manifest {
 
-  // val singleTest = "load.s"
-  val singleTest = "BTreeO3.s"
+  val singleTest = "load2.s"
+  // val singleTest = "BTreeO3.s"
 
 
-  val nopPadded = true
+  val nopPadded = false
 
   val singleTestOptions = TestOptions(
     printIfSuccessful  = true,
