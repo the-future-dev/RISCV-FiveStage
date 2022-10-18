@@ -40,6 +40,8 @@ class InstructionDecode extends MultiIOModule {
   val registers               = Module(new Registers)
   val decoder                 = Module(new Decoder).io
 
+  val launched = io.in.pc.asTypeOf(SInt(32.W)) >= 0.S
+
   /** Setup. You should not change this code */
   registers.testHarness.setup := testHarness.registerSetup
   testHarness.registerPeek    := registers.io.readData1
@@ -111,7 +113,7 @@ class InstructionDecode extends MultiIOModule {
   io.out.memWrite             := decoder.controlSignals.memWrite
   io.out.memRead              := decoder.controlSignals.memRead
   io.out.regWrite             := decoder.controlSignals.regWrite
-  io.out.memData              := a
+  io.out.memData              := Mux(launched, registers.io.readData2, a)
   io.out.op1 := a
   io.out.op2 := b
   
@@ -130,28 +132,22 @@ class InstructionDecode extends MultiIOModule {
   val jumping = decoder.controlSignals.jump
   val branching = decoder.controlSignals.branch
 
-  io.outJ.jump                := jumping
-  io.outJ.nextPC              := 0.U
+  io.outJ.jump   := jumping
+  io.outJ.nextPC := 0.U
 
   when(branching){
-    io.outJ.jump              := MuxLookup(decoder.branchType, false.B, branchTypeMap)
-    io.outJ.nextPC            := io.in.pc + immediate
+    io.outJ.jump := MuxLookup(decoder.branchType, false.B, branchTypeMap)
+    io.outJ.nextPC := io.in.pc + immediate
   }
 
   when(jumping && decoder.controlSignals.regWrite){
-    io.outJ.nextPC            := Mux(decoder.immType === JTYPE, io.in.pc + immediate, ((registers.io.readData1 + immediate) & "hFFFF_FFFE".U(32.W)))
-    io.out.regWrite           := false.B
-  }
-  when(jumping && !branching){
-    when(io.ex.regWrite || io.mem.regWrite || io.wb.writeEnable){
-      stalled := true.B
-      savedInstruction := io.in.instruction
-      io.stall := true.B
-    }.otherwise{
-      registers.io.writeEnable  := true.B
-      registers.io.writeAddress := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
-      registers.io.writeData    := io.in.pc + 4.U
-    }
+    io.outJ.nextPC := Mux(decoder.immType === JTYPE, io.in.pc + immediate,
+      ((registers.io.readData1 + immediate) & "hFFFF_FFFE".U(32.W)))
+    io.out.regWrite := false.B
+
+    registers.io.writeEnable  := true.B
+    registers.io.writeAddress := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
+    registers.io.writeData    := io.in.pc + 4.U
   }
 
   //Nothing more to do for this instruction: kind of a bubble

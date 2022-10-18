@@ -19,9 +19,9 @@ import LogParser._
 
 object Manifest {
 
-  val singleTest = "load2.s"
-  // val singleTest = "BTreeO3.s"
-
+  // val singleTest = "jump.s"
+  // val singleTest = "load2.s"
+  val singleTest = "BTreeO3.s"
 
   val nopPadded = false
 
@@ -36,7 +36,7 @@ object Manifest {
     nopPadded          = nopPadded,
     breakPoints        = Nil, // not implemented
     testName           = singleTest,
-    maxSteps           = 1000)
+    maxSteps           = 800)
 
 
   val allTestOptions: String => TestOptions = name => TestOptions(
@@ -81,7 +81,7 @@ class SingleTest extends FlatSpec with Matchers {
 
 class AllTests extends FlatSpec with Matchers {
   it should "just werk" in {
-    val werks = getAllTestNames.filterNot(_ == "convolution.s").map{testname => 
+    val werks = getAllTestNames.filterNot(_ == "convolution.s").filterNot(_ == "branchProfiling.s").map{testname => 
       say(s"testing $testname")
       val opts = Manifest.allTestOptions(testname)
       (testname, TestRunner.run(opts))
@@ -104,25 +104,27 @@ class AllTests extends FlatSpec with Matchers {
 class PartsTests extends FlatSpec with Matchers {
   val parts = Array(
     //Milestone 1 - OK for now
-    // "arith.s",
-    // "addi.s",
-    // "arithImm.s",
-    // "forward1.s",
-    // "forward2.s",
-    // "load.s",
-    // "load2.s",
+    "arith.s",
+    "addi.s",
+    "arithImm.s",
+    "forward1.s",
+    "forward2.s",
+    "load.s",
+    "load2.s",
+    "jump.s",
+    "jump2.s",
 
     //Milestone 2
-    "add.s",
-    "BTreeManyO3.s",
-    "BTreeO3.s",
-    "constants.s",
-    "memoFib.s",
-    "naiveFib.s",
-    "palindrome.s",
-    "palindromeO3.s",
-    "searchRegularO0.s",
-    "square.s", 
+    // "add.s",
+    // "BTreeManyO3.s",
+    // "BTreeO3.s",
+    // "constants.s",
+    // "memoFib.s",
+    // "naiveFib.s",
+    // "palindrome.s",
+    // "palindromeO3.s",
+    // "searchRegularO0.s",
+    // "square.s", 
   )
   it should "just werk" in {
     val werks = parts.filterNot(_ == "convolution.s").map{testname => 
