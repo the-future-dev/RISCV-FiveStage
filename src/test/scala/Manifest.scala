@@ -19,11 +19,11 @@ import LogParser._
 
 object Manifest {
 
-  val singleTest = "load.s"
-  // val singleTest = "forward2.s"
+  // val singleTest = "load.s"
+  val singleTest = "BTreeO3.s"
 
 
-  val nopPadded = false
+  val nopPadded = true
 
   val singleTestOptions = TestOptions(
     printIfSuccessful  = true,
@@ -36,7 +36,7 @@ object Manifest {
     nopPadded          = nopPadded,
     breakPoints        = Nil, // not implemented
     testName           = singleTest,
-    maxSteps           = 30000)
+    maxSteps           = 1000)
 
 
   val allTestOptions: String => TestOptions = name => TestOptions(
@@ -104,26 +104,25 @@ class AllTests extends FlatSpec with Matchers {
 class PartsTests extends FlatSpec with Matchers {
   val parts = Array(
     //Milestone 1 - OK for now
-    "arith.s",
-    "addi.s",
-    "arithImm.s",
-    "forward1.s",
-    "forward2.s",
-    "load.s",
-    "load2.s",
-    
+    // "arith.s",
+    // "addi.s",
+    // "arithImm.s",
+    // "forward1.s",
+    // "forward2.s",
+    // "load.s",
+    // "load2.s",
 
     //Milestone 2
-    // "add.s",
-    // "BTreeManyO3.s",
-    // "BTreeO3.s",
-    // "constants.s",
-    // "memoFib.s",
-    // "naiveFib.s",
-    // "palindrome.s",
-    // "palindromeO3.s",
-    // "searchRegularO0.s",
-    // "square.s", 
+    "add.s",
+    "BTreeManyO3.s",
+    "BTreeO3.s",
+    "constants.s",
+    "memoFib.s",
+    "naiveFib.s",
+    "palindrome.s",
+    "palindromeO3.s",
+    "searchRegularO0.s",
+    "square.s", 
   )
   it should "just werk" in {
     val werks = parts.filterNot(_ == "convolution.s").map{testname => 

@@ -140,14 +140,21 @@ class InstructionDecode extends MultiIOModule {
   when(jumping && decoder.controlSignals.regWrite){
     io.outJ.nextPC            := Mux(decoder.immType === JTYPE, io.in.pc + immediate, ((registers.io.readData1 + immediate) & "hFFFF_FFFE".U(32.W)))
     io.out.regWrite           := false.B
-
-    registers.io.writeEnable  := true.B
-    registers.io.writeAddress := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
-    registers.io.writeData    := io.in.pc + 4.U
+  }
+  when(jumping && !branching){
+    when(io.ex.regWrite || io.mem.regWrite || io.wb.writeEnable){
+      stalled := true.B
+      savedInstruction := io.in.instruction
+      io.stall := true.B
+    }.otherwise{
+      registers.io.writeEnable  := true.B
+      registers.io.writeAddress := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
+      registers.io.writeData    := io.in.pc + 4.U
+    }
   }
 
   //Nothing more to do for this instruction: kind of a bubble
-  when(io.stall || jumping && decoder.controlSignals.regWrite){
+  when(io.stall || (jumping && decoder.controlSignals.regWrite)){
     io.out.op1                := 0.U
     io.out.op2                := 0.U
     io.out.aluOP              := ALUOps.DC

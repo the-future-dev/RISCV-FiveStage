@@ -33,7 +33,7 @@ class InstructionFetch extends MultiIOModule {
 
   //Handling the program counter
   io.out.pc                   := pc
-  pc                          := Mux(io.inJ.jump, io.inJ.nextPC, pc) + Mux(io.stall, 0.U, 4.U)
+  pc                          := Mux(io.inJ.jump, io.inJ.nextPC, pc+Mux(io.stall, 0.U, 4.U))
 
   //Handling the instruction fetch
   IMEM.io.instructionAddress  := pc
