@@ -44,4 +44,6 @@ class Execute extends MultiIOModule {
   io.out.memWrite     := io.in.memWrite
   
   io.out.writeAddress := io.in.writeAddress
+
+  // printf("MemWrite: %d | %d\n",io.out.memWrite,resultAlu)
 }

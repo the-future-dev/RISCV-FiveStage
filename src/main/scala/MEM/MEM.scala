@@ -48,4 +48,6 @@ class MemoryFetch() extends MultiIOModule {
   //read memory
   io.out.memRead      := io.in.memRead
   io.dmemReadResult   := DMEM.io.dataOut
+
+  // printf("DMEM data address:")
 }

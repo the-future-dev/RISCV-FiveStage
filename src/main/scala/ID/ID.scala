@@ -59,9 +59,6 @@ class InstructionDecode extends MultiIOModule {
   val sigEX_STALL             = io.ex.regWrite  && io.ex.memRead  && (io.in.instruction.registerRs1 === io.ex.writeAddress || io.in.instruction.registerRs2 === io.ex.writeAddress)
   val sigMEM_STALL            = io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
 
-  // printf("%d: stall {ex: %d | mem1: %d |mem2: %d }\n", io.out.pc, sigEX_STALL, sigMEM_STALL, sigMEM_DELAY)
-  //printf("%d:> %d\n", io.out.pc, (sigMEM_DELAY && !sigMEM_STALL))
-
   io.stall                    := sigEX_STALL || sigMEM_STALL || stalled2
   stalled                     := sigEX_STALL || sigMEM_STALL
   stalled2                    := sigEX_STALL
@@ -107,13 +104,14 @@ class InstructionDecode extends MultiIOModule {
     imm             -> immediate,
     IMFDC           -> 0.U(32.W)
   ))
+
     //TO -> EXECUTE
   io.out.writeAddress         := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
   io.out.aluOP                := decoder.ALUop
   io.out.memWrite             := decoder.controlSignals.memWrite
   io.out.memRead              := decoder.controlSignals.memRead
   io.out.regWrite             := decoder.controlSignals.regWrite
-  io.out.memData              := Mux(launched, registers.io.readData2, a)
+  io.out.memData              := a    //registers.io.readData2 //Mux(launched, a, registers.io.readData2) //a
   io.out.op1 := a
   io.out.op2 := b
   
@@ -161,5 +159,19 @@ class InstructionDecode extends MultiIOModule {
     io.out.memRead            := false.B
     io.out.memWrite           := false.B
   }
+
+  chisel3.experimental.dontTouch(sigEX_STALL)
+  chisel3.experimental.dontTouch(sigMEM_STALL)
+
+  // printf("%d: stall {ex: %d | mem1: %d |mem2: %d }\n", io.out.pc, sigEX_STALL, sigMEM_STALL, sigMEM_DELAY)
+  //printf("%d:> %d\n", io.out.pc, (sigMEM_DELAY && !sigMEM_STALL))
+
+  //LOOK for SW pipelined
+  // printf("%d | MEMWRITE:%d | stall: %d: ", io.in.pc, io.out.memWrite, io.stall)
+  // printf("FWD ex: %d", io.ex.regWrite && (io.ex.writeAddress === rs1address || io.ex.writeAddress ===rs2address))
+  // printf("FWD mem: %d", io.mem.regWrite && (io.mem.writeAddress === rs1address|| io.mem.writeAddress ===rs2address))
+  // printf("FWD wb: %d", io.wb.writeEnable && (io.wb.writeAddress ===rs1address))
+  // printf(" | WB: %d | out: %d\n", io.wb.writeData, io.out.op1+io.out.op2)
+  // printf(" memData: %d | %d \n", io.out.memData, a)
 }
 

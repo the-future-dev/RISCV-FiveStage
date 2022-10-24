@@ -55,3 +55,8 @@ class JumpBundle extends Bundle {
   val jump          = Bool()
   val nextPC        = UInt(32.W)
 }
+
+class Prediction extends Bundle {
+  val avsB       = UInt(32.W)
+  val memFwdr       = Bool()
+}
