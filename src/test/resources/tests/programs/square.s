@@ -14,12 +14,14 @@ main:
 	sw	a5,-32(s0)
 	lw	a4,-20(s0)
 	lw	a5,-24(s0)
+	nop
 	add	a5,a4,a5
 	mv	a0,a5
 	call	square
 	mv	s1,a0
 	lw	a4,-28(s0)
 	lw	a5,-32(s0)
+	nop
 	add	a5,a4,a5
 	mv	a0,a5
 	call	square
@@ -33,6 +35,7 @@ main:
 	mv	a0,a5
 	lw	ra,28(sp)
 	lw	s0,24(sp)
+	nop
 	lw	s1,20(sp)
 	addi	sp,sp,32
 	jr	ra
@@ -52,6 +55,7 @@ mul:
 	add	a5,a4,a5
 	sw	a5,-20(s0)
 	lw	a5,-24(s0)
+	nop
 	addi	a5,a5,1
 	sw	a5,-24(s0)
 .L2:
@@ -59,6 +63,7 @@ mul:
 	lw	a5,-36(s0)
 	blt	a4,a5,.L3
 	lw	a5,-20(s0)
+	nop
 	mv	a0,a5
 	lw	s0,44(sp)
 	addi	sp,sp,48

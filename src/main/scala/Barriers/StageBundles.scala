@@ -2,15 +2,15 @@ package FiveStage
 import chisel3._
 
 class IFBundle extends Bundle {
-  val pc = UInt(32.W)
-  val instruction = new Instruction
+  val pc            = UInt(32.W)
+  val instruction   = new Instruction
 }
 
 class IDBundle extends Bundle {
-  val pc = UInt(32.W)
-  val op1 = UInt(32.W)
-  val op2 = UInt(32.W)
-  val aluOP = UInt(4.W)
+  val pc            = UInt(32.W)
+  val op1           = UInt(32.W)
+  val op2           = UInt(32.W)
+  val aluOP         = UInt(4.W)
 
   val regWrite      = Bool()
   val memData       = UInt(32.W)
@@ -19,7 +19,16 @@ class IDBundle extends Bundle {
   val memWrite      = Bool()
 
   val writeAddress  = UInt(12.W) // address DMEM 12.W    Registers 5.W
+}
 
+class FwdEx extends Bundle {
+  //forwarding reading the memory and get one more cycle
+  val sigMEM        = Bool()
+  val mem1          = Bool()
+  val mem2          = Bool()
+  val address1      = UInt(32.W)
+  val address2      = UInt(32.W)
+  val memDSrc       = UInt(32.W)
 }
 
 class EXBundle extends Bundle {

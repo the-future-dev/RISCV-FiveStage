@@ -16,18 +16,27 @@ class IFBarrier extends Module {
 
 class IDBarrier extends Module {
     val io = IO(new Bundle{
-        val in = Input(new IDBundle)
+        val in  = Input(new IDBundle)
+        val iFw = Input(new FwdEx)
+
         val out = Output(new IDBundle)
+        val oFw = Output(new FwdEx)
+
     })
     val regs = Reg(new IDBundle)
+    val regFw= Reg(new FwdEx)
 
     regs   := io.in
     io.out := regs
+
+    regFw  := io.iFw
+    io.oFw := regFw
 }
 
 class EXBarrier extends Module {
     val io = IO(new Bundle{
         val in = Input(new EXBundle)
+
         val out = Output(new EXBundle)
     })
     val regs = Reg(new EXBundle)

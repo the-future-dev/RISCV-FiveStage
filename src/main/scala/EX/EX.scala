@@ -8,14 +8,23 @@ import ALUOps._
 class Execute extends MultiIOModule {
     val io = IO(
     new Bundle {
-      val in = Input(new IDBundle)
+      val in          = Input(new IDBundle)
+      val fwdIn       = Input(new FwdEx)
+      val wb          = Input(new WriteBackBundle)
+      val mem         = Input(new MEMBundle)
+      val ex          = Input(new EXBundle)
 
-      val out = Output(new EXBundle)
+      val out         = Output(new EXBundle)
     }
   )
 
-  val x = io.in.op1
-  val y = io.in.op2
+  val x = Mux(io.ex.regWrite && (io.ex.writeAddress === io.fwdIn.address1), io.ex.writeData,
+            Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.address1), io.mem.writeData,
+              Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.address1), io.wb.writeData, io.in.op1)))
+  
+  val y = Mux(io.ex.regWrite && (io.ex.writeAddress === io.fwdIn.address2), io.ex.writeData,
+            Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.address2), io.mem.writeData,
+              Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.address2), io.wb.writeData, io.in.op2)))
 
   val resultAlu = MuxLookup(io.in.aluOP, 0.U(32.W), Array(
     ADD   -> (x + y),
@@ -37,13 +46,14 @@ class Execute extends MultiIOModule {
   io.out.pc           := io.in.pc
 
   io.out.regWrite     := io.in.regWrite && io.in.writeAddress =/= 0.U
-  io.out.memData      := io.in.memData
+  io.out.memData      := Mux(io.ex.regWrite && (io.ex.writeAddress === io.fwdIn.memDSrc), io.ex.writeData,
+                          Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.memDSrc), io.mem.writeData,
+                            Mux(io.wb.writeEnable && (io.fwdIn.memDSrc === io.wb.writeAddress), io.wb.writeData, io.in.memData)))
+  
   io.out.writeData    := resultAlu
 
   io.out.memRead      := io.in.memRead
   io.out.memWrite     := io.in.memWrite
   
   io.out.writeAddress := io.in.writeAddress
-
-  // printf("MemWrite: %d | %d\n",io.out.memWrite,resultAlu)
 }

@@ -26,6 +26,7 @@ class InstructionDecode extends MultiIOModule {
       val ex    = Input(new EXBundle)
       val mem   = Input(new MEMBundle)
 
+      val fwdOut= Output(new FwdEx)
       val outJ  = Output(new JumpBundle)
       val stall = Output(Bool())
       val out   = Output(new IDBundle)
@@ -56,13 +57,20 @@ class InstructionDecode extends MultiIOModule {
   val rdaddress               = decoder.instruction.registerRd
 
   //RAW: stalling
-  val sigEX_STALL             = io.ex.regWrite  && io.ex.memRead  && (io.in.instruction.registerRs1 === io.ex.writeAddress || io.in.instruction.registerRs2 === io.ex.writeAddress)
+  chisel3.experimental.dontTouch(sigEX_STALL)
+  val sigEX_STALL             = io.ex.regWrite  && io.ex.memRead  && (io.ex.writeAddress  === io.in.instruction.registerRs1 || io.ex.writeAddress  === io.in.instruction.registerRs2)
   val sigMEM_STALL            = io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
 
-  io.stall                    := sigEX_STALL || sigMEM_STALL || stalled2
-  stalled                     := sigEX_STALL || sigMEM_STALL
-  stalled2                    := sigEX_STALL
-  savedInstruction            := Mux(sigEX_STALL || sigMEM_STALL, io.in.instruction, 0.U.asTypeOf(new Instruction))
+  io.stall                    := sigEX_STALL 
+  stalled                     := sigEX_STALL
+  savedInstruction            := Mux(sigEX_STALL, io.in.instruction, 0.U.asTypeOf(new Instruction))
+  
+  io.fwdOut.sigMEM    := sigMEM_STALL
+  io.fwdOut.mem1      := (io.mem.writeAddress === io.in.instruction.registerRs1) && (decoder.op1Select === rs1)
+  io.fwdOut.mem2      := (io.mem.writeAddress === io.in.instruction.registerRs2) && (decoder.op1Select === rs2)
+  io.fwdOut.address1  := Mux((decoder.op1Select === rs1), rs1address, 0.U)
+  io.fwdOut.address2  := Mux((decoder.op2Select === rs2), rs2address, 0.U)  
+  io.fwdOut.memDSrc   := Mux(io.out.memWrite, rs2address, 0.U)
 
   //to REGISTERS                                                                                            
   registers.io.readAddress1   := rs1address
@@ -91,9 +99,9 @@ class InstructionDecode extends MultiIOModule {
                           )
                         )
 
-  val regsource2 = Mux(io.ex.regWrite && (io.ex.writeAddress === rs2address) && (rs2address=/=0.U), io.ex.writeData,
-                      Mux(io.mem.regWrite && (io.mem.writeAddress === rs2address) && (rs2address=/=0.U), io.mem.writeData,
-                        Mux(io.wb.writeEnable && (io.wb.writeAddress === rs2address) && (rs2address=/=0.U), io.wb.writeData,
+  val regsource2 = Mux(io.ex.regWrite && (io.ex.writeAddress === rs2address), io.ex.writeData,
+                      Mux(io.mem.regWrite && (io.mem.writeAddress === rs2address), io.mem.writeData,
+                        Mux(io.wb.writeEnable && (io.wb.writeAddress === rs2address), io.wb.writeData,
                           registers.io.readData2
                         )
                       )
@@ -118,8 +126,8 @@ class InstructionDecode extends MultiIOModule {
   io.out.memRead              := decoder.controlSignals.memRead
   io.out.regWrite             := decoder.controlSignals.regWrite
   io.out.memData              := Mux(io.out.memWrite, regsource2, 0.U)
-  io.out.op1 := a
-  io.out.op2 := b
+  io.out.op1                  := a
+  io.out.op2                  := b
   
   //TO -> INSTRUCTION FETCH
   val branchTypeMap = Array(
@@ -153,7 +161,7 @@ class InstructionDecode extends MultiIOModule {
       io.out.writeAddress       := decoder.instruction.registerRd
   }
 
-  //Nothing more to do for this instruction: kind of a bubble
+  //Nothing more to do for this instruction: insert a bubble in the pipeline
   when(io.stall){
     io.out.op1                := 0.U
     io.out.op2                := 0.U
@@ -163,27 +171,6 @@ class InstructionDecode extends MultiIOModule {
     io.out.regWrite           := false.B
     io.out.memRead            := false.B
     io.out.memWrite           := false.B
-
-    // io.out.writeData          := 0.U
   }
-
-  chisel3.experimental.dontTouch(sigEX_STALL)
-  chisel3.experimental.dontTouch(sigMEM_STALL)
-
-  // printf("%d: stall {ex: %d | mem1: %d |mem2: %d }\n", io.out.pc, sigEX_STALL, sigMEM_STALL, sigMEM_DELAY)
-  //printf("%d:> %d\n", io.out.pc, (sigMEM_DELAY && !sigMEM_STALL))
-
-  //LOOK for SW pipelined
-  // printf("%d | MEMWRITE:%d | stall: %d: ", io.in.pc, io.out.memWrite, io.stall)
-  // printf("FWD ex: %d", io.ex.regWrite && (io.ex.writeAddress === rs1address || io.ex.writeAddress ===rs2address))
-  // printf("FWD mem: %d", io.mem.regWrite && (io.mem.writeAddress === rs1address|| io.mem.writeAddress ===rs2address))
-  // printf("FWD wb: %d", io.wb.writeEnable && (io.wb.writeAddress ===rs1address))
-  // printf(" | WB: %d | out: %d\n", io.wb.writeData, io.out.op1+io.out.op2)
-  // printf(" memData: %d | %d \n", io.out.memData, a)
-
-  //LOOK for Jumping pipelined
-  // when(io.in.pc >= 0.U){
-  //   printf("%d| jump: %d | in pc: %d | j pc: %d\n", io.in.pc, jumping, io.in.pc, io.outJ.nextPC)
-  // }
 }
 

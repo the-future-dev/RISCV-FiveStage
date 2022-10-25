@@ -6,10 +6,10 @@ import chisel3.experimental.MultiIOModule
 class WriteBack extends MultiIOModule {
     val io = IO(
     new Bundle {
-      val in = Input(new MEMBundle)
-      val out = Output(new WriteBackBundle)
+      val in        = Input(new MEMBundle)
+      val dmemData  = Input(UInt(32.W))
 
-      val dmemData = Input(UInt(32.W))
+      val out       = Output(new WriteBackBundle)
     }
   )
   io.out.pc   := io.in.pc
