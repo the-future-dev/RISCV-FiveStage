@@ -32,11 +32,11 @@ class InstructionFetch extends MultiIOModule {
   testHarness.PC := IMEM.testHarness.requestedAddress
 
   //Handling the program counter
-  io.out.pc                   := pc
-  pc                          := Mux(io.inJ.jump, io.inJ.nextPC, pc+Mux(io.stall, 0.U, 4.U))
+  io.out.pc                   := Mux(io.inJ.jump, io.inJ.nextPC, pc)
+  pc                          := Mux(io.inJ.jump, io.inJ.nextPC, pc)+Mux(io.stall, 0.U, 4.U)
 
   //Handling the instruction fetch
-  IMEM.io.instructionAddress  := pc
+  IMEM.io.instructionAddress  := Mux(io.inJ.jump, io.inJ.nextPC, pc)
   instruction                 := IMEM.io.instruction.asTypeOf(new Instruction)
 
   //stalling

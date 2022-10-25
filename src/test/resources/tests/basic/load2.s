@@ -8,9 +8,6 @@ main:
 	lw x1, 0(x1)
 	sw x1, 4(x1)
 	lw x1, 4(x1)
-	nop
-	nop
-	nop
 	done
 #memset 0x0,  4
 #memset 0x4,  8

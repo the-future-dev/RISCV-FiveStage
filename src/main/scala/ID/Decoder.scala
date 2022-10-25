@@ -76,7 +76,7 @@ class Decoder() extends Module {
 //JALR         (Write Register inside ID)
     JALR   -> List(Y, N, N, N, Y, branchType.DC, rs1,    imm, ITYPE, ALUOps.DC),
 //BEQ
-    BEQ    -> List(N, N, N, Y, Y,  branchType.beq,rs1,   rs2, BTYPE, ALUOps.DC),
+    BEQ    -> List(N, N, N, Y, Y, branchType.beq,rs1,   rs2, BTYPE, ALUOps.DC),
 //BNE
     BNE    -> List(N, N, N, Y, Y, branchType.neq, rs1,   rs2, BTYPE, ALUOps.DC),
 //BLT

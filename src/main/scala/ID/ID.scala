@@ -83,35 +83,41 @@ class InstructionDecode extends MultiIOModule {
     IMFDC -> 0.S(12.W)
   )).asTypeOf(SInt(32.W)).asUInt
 
-  val a = MuxLookup(decoder.op1Select, 0.U(32.W), Array(
-    rs1              -> Mux(io.ex.regWrite && (io.ex.writeAddress === rs1address), io.ex.writeData,
+  val regsource1 = Mux(io.ex.regWrite && (io.ex.writeAddress === rs1address), io.ex.writeData,
                           Mux(io.mem.regWrite && (io.mem.writeAddress === rs1address), io.mem.writeData,
-                            Mux(io.wb.writeEnable && (io.wb.writeAddress === rs1address), io.wb.writeData, registers.io.readData1
+                            Mux(io.wb.writeEnable && (io.wb.writeAddress === rs1address), io.wb.writeData,
+                              registers.io.readData1
                             )
                           )
-                        ),
+                        )
+
+  val regsource2 = Mux(io.ex.regWrite && (io.ex.writeAddress === rs2address) && (rs2address=/=0.U), io.ex.writeData,
+                      Mux(io.mem.regWrite && (io.mem.writeAddress === rs2address) && (rs2address=/=0.U), io.mem.writeData,
+                        Mux(io.wb.writeEnable && (io.wb.writeAddress === rs2address) && (rs2address=/=0.U), io.wb.writeData,
+                          registers.io.readData2
+                        )
+                      )
+                    )
+
+  val a = MuxLookup(decoder.op1Select, 0.U(32.W), Array(
+    rs1              -> regsource1,
     PC              -> 0.U(5.W),
     IMFDC           -> 0.U(5.W)
   ))
 
   val b = MuxLookup(decoder.op2Select, 0.U(32.W), Array(
-    rs2             ->  Mux(io.ex.regWrite && (io.ex.writeAddress === rs2address), io.ex.writeData,
-                          Mux(io.mem.regWrite && (io.mem.writeAddress === rs2address), io.mem.writeData,
-                            Mux(io.wb.writeEnable && (io.wb.writeAddress === rs2address), io.wb.writeData, registers.io.readData2
-                            )
-                          )
-                        ),
+    rs2             -> regsource2,
     imm             -> immediate,
     IMFDC           -> 0.U(32.W)
   ))
 
     //TO -> EXECUTE
-  io.out.writeAddress         := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
+  io.out.writeAddress         := Mux(decoder.controlSignals.regWrite && launched, decoder.instruction.registerRd, 0.U)
   io.out.aluOP                := decoder.ALUop
   io.out.memWrite             := decoder.controlSignals.memWrite
   io.out.memRead              := decoder.controlSignals.memRead
   io.out.regWrite             := decoder.controlSignals.regWrite
-  io.out.memData              := a    //registers.io.readData2 //Mux(launched, a, registers.io.readData2) //a
+  io.out.memData              := Mux(io.out.memWrite, regsource2, 0.U)
   io.out.op1 := a
   io.out.op2 := b
   
@@ -125,31 +131,30 @@ class InstructionDecode extends MultiIOModule {
     branchType.ltu  -> (a < b)
   )
 
-
   //Jumping and Branching
   val jumping = decoder.controlSignals.jump
   val branching = decoder.controlSignals.branch
 
-  io.outJ.jump   := jumping
-  io.outJ.nextPC := 0.U
-
-  when(branching){
-    io.outJ.jump := MuxLookup(decoder.branchType, false.B, branchTypeMap)
-    io.outJ.nextPC := io.in.pc + immediate
-  }
+  io.outJ.jump   := Mux(branching, MuxLookup(decoder.branchType, false.B, branchTypeMap), jumping)
+  io.outJ.nextPC := Mux(branching, io.in.pc + immediate,
+                      Mux(decoder.immType === JTYPE, io.in.pc + immediate,
+                        ((regsource1 + immediate) & "hFFFF_FFFE".U(32.W))
+                      )
+                    )
 
   when(jumping && decoder.controlSignals.regWrite){
-    io.outJ.nextPC := Mux(decoder.immType === JTYPE, io.in.pc + immediate,
-      ((registers.io.readData1 + immediate) & "hFFFF_FFFE".U(32.W)))
-    io.out.regWrite := false.B
-
-    registers.io.writeEnable  := true.B
-    registers.io.writeAddress := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
-    registers.io.writeData    := io.in.pc + 4.U
+      io.out.op1                := io.in.pc
+      io.out.op2                := 4.U
+      io.out.aluOP              := ALUOps.ADD
+      io.out.memData            := 0.U
+      io.out.memRead            := false.B
+      io.out.memWrite           := false.B
+      io.out.regWrite           := true.B
+      io.out.writeAddress       := decoder.instruction.registerRd
   }
 
   //Nothing more to do for this instruction: kind of a bubble
-  when(io.stall || (jumping && decoder.controlSignals.regWrite)){
+  when(io.stall){
     io.out.op1                := 0.U
     io.out.op2                := 0.U
     io.out.aluOP              := ALUOps.DC
@@ -158,6 +163,8 @@ class InstructionDecode extends MultiIOModule {
     io.out.regWrite           := false.B
     io.out.memRead            := false.B
     io.out.memWrite           := false.B
+
+    // io.out.writeData          := 0.U
   }
 
   chisel3.experimental.dontTouch(sigEX_STALL)
@@ -173,5 +180,10 @@ class InstructionDecode extends MultiIOModule {
   // printf("FWD wb: %d", io.wb.writeEnable && (io.wb.writeAddress ===rs1address))
   // printf(" | WB: %d | out: %d\n", io.wb.writeData, io.out.op1+io.out.op2)
   // printf(" memData: %d | %d \n", io.out.memData, a)
+
+  //LOOK for Jumping pipelined
+  // when(io.in.pc >= 0.U){
+  //   printf("%d| jump: %d | in pc: %d | j pc: %d\n", io.in.pc, jumping, io.in.pc, io.outJ.nextPC)
+  // }
 }
 

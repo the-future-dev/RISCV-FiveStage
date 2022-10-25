@@ -63,8 +63,9 @@ class JBarrier extends Module {
         val in = Input(new JumpBundle)
         val out = Output(new JumpBundle)
     })
-    val regs = Reg(new JumpBundle)
-    regs := io.in
-    io.out := regs 
-    // io.out := io.in
+    // val regs = Reg(new JumpBundle)
+    // regs := io.in
+    // io.out := regs
+
+    io.out := io.in
 }
