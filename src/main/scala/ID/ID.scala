@@ -35,13 +35,11 @@ class InstructionDecode extends MultiIOModule {
 
   //state
   val stalled                 = RegInit(false.B)
-  val stalled2                = RegInit(false.B)
   val savedInstruction        = Reg(new Instruction)
+  val stopped                 = RegInit(false.B)
   
   val registers               = Module(new Registers)
   val decoder                 = Module(new Decoder).io
-
-  val launched = io.in.pc.asTypeOf(SInt(32.W)) >= 0.S
 
   /** Setup. You should not change this code */
   registers.testHarness.setup := testHarness.registerSetup
@@ -57,7 +55,7 @@ class InstructionDecode extends MultiIOModule {
   val rdaddress               = decoder.instruction.registerRd
 
   //RAW: stalling
-  chisel3.experimental.dontTouch(sigEX_STALL)
+  // chisel3.experimental.dontTouch(sigEX_STALL)
   val sigEX_STALL             = io.ex.regWrite  && io.ex.memRead  && (io.ex.writeAddress  === io.in.instruction.registerRs1 || io.ex.writeAddress  === io.in.instruction.registerRs2)
   val sigMEM_STALL            = io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
 
@@ -120,7 +118,7 @@ class InstructionDecode extends MultiIOModule {
   ))
 
     //TO -> EXECUTE
-  io.out.writeAddress         := Mux(decoder.controlSignals.regWrite && launched, decoder.instruction.registerRd, 0.U)
+  io.out.writeAddress         := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
   io.out.aluOP                := decoder.ALUop
   io.out.memWrite             := decoder.controlSignals.memWrite
   io.out.memRead              := decoder.controlSignals.memRead
@@ -162,7 +160,7 @@ class InstructionDecode extends MultiIOModule {
   }
 
   //Nothing more to do for this instruction: insert a bubble in the pipeline
-  when(io.stall){
+  when(io.stall || stopped){
     io.out.op1                := 0.U
     io.out.op2                := 0.U
     io.out.aluOP              := ALUOps.DC
@@ -171,6 +169,11 @@ class InstructionDecode extends MultiIOModule {
     io.out.regWrite           := false.B
     io.out.memRead            := false.B
     io.out.memWrite           := false.B
+  }
+
+  val stopping = (io.in.instruction.asUInt === 0x13.U || io.in.instruction.asUInt === 0x00.U) && (io.in.pc.asTypeOf(SInt(32.W)) >= 0.S) && (io.in.pc =/= 0.U) && !stalled
+  when(stopping){
+    stopped := true.B
   }
 }
 

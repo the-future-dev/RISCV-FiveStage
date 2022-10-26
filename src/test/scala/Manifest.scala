@@ -20,8 +20,8 @@ import LogParser._
 object Manifest {
 
   // val singleTest = "jump.s"
-  val singleTest = "load.s"
-  // val singleTest = "BTreeO3.s"
+  // val singleTest = "load.s"
+  val singleTest = "memoFib.s"
   // val singleTest = "square.s"
 
   val nopPadded = false
@@ -37,8 +37,8 @@ object Manifest {
     nopPadded          = nopPadded,
     breakPoints        = Nil, // not implemented
     testName           = singleTest,
-    // maxSteps           = 800)
-    maxSteps           = 10000)
+    // maxSteps           = 200)
+    maxSteps           = 15000)
 
 
   val allTestOptions: String => TestOptions = name => TestOptions(
@@ -52,7 +52,7 @@ object Manifest {
     nopPadded          = nopPadded,
     breakPoints        = Nil, // not implemented
     testName           = name,
-    maxSteps           = 15000)
+    maxSteps           = 3000)
 
 }
 

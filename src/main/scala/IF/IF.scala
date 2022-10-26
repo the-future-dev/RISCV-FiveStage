@@ -50,5 +50,5 @@ class InstructionFetch extends MultiIOModule {
     pc          := 0.U
     instruction := Instruction.NOP
   }
-  printf("pc %d: ", io.out.pc)
+  // printf("pc %d: ", io.out.pc)
 }
