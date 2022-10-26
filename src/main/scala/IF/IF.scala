@@ -42,7 +42,6 @@ class InstructionFetch extends MultiIOModule {
   //stalling
   io.out.instruction          := Mux(stalled, lastInstruction, instruction)
   stalled                     := io.stall
-
   lastInstruction             := io.out.instruction
   
   /**Setup */
@@ -50,5 +49,4 @@ class InstructionFetch extends MultiIOModule {
     pc          := 0.U
     instruction := Instruction.NOP
   }
-  // printf("pc %d: ", io.out.pc)
 }

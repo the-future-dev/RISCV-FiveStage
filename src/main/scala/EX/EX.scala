@@ -18,6 +18,7 @@ class Execute extends MultiIOModule {
     }
   )
 
+  //forwarding
   val x = Mux(io.ex.regWrite && (io.ex.writeAddress === io.fwdIn.address1), io.ex.writeData,
             Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.address1), io.mem.writeData,
               Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.address1), io.wb.writeData, io.in.op1)))
@@ -26,6 +27,7 @@ class Execute extends MultiIOModule {
             Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.address2), io.mem.writeData,
               Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.address2), io.wb.writeData, io.in.op2)))
 
+  //ALU execution
   val resultAlu = MuxLookup(io.in.aluOP, 0.U(32.W), Array(
     ADD   -> (x + y),
     SUB   -> (x - y),
@@ -48,7 +50,8 @@ class Execute extends MultiIOModule {
   io.out.regWrite     := io.in.regWrite && io.in.writeAddress =/= 0.U
   io.out.memData      := Mux(io.ex.regWrite && (io.ex.writeAddress === io.fwdIn.memDSrc), io.ex.writeData,
                           Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.memDSrc), io.mem.writeData,
-                            Mux(io.wb.writeEnable && (io.fwdIn.memDSrc === io.wb.writeAddress), io.wb.writeData, io.in.memData)))
+                            Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.memDSrc), io.wb.writeData,
+                              io.in.memData)))
   
   io.out.writeData    := resultAlu
 

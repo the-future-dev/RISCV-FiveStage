@@ -18,14 +18,12 @@ class IDBundle extends Bundle {
   val memRead       = Bool()
   val memWrite      = Bool()
 
-  val writeAddress  = UInt(12.W) // address DMEM 12.W    Registers 5.W
+  val writeAddress  = UInt(5.W)   //address of the destination register
 }
 
+//forwarding reading the memory and get one more cycle 
 class FwdEx extends Bundle {
-  //forwarding reading the memory and get one more cycle
   val sigMEM        = Bool()
-  val mem1          = Bool()
-  val mem2          = Bool()
   val address1      = UInt(32.W)
   val address2      = UInt(32.W)
   val memDSrc       = UInt(32.W)
@@ -41,7 +39,7 @@ class EXBundle extends Bundle {
   val memRead       = Bool()
   val memWrite      = Bool()
 
-  val writeAddress  = UInt(12.W) // address DMEM 12.W    Registers 5.W
+  val writeAddress  = UInt(5.W)
 }
 
 class MEMBundle extends Bundle {
@@ -50,7 +48,7 @@ class MEMBundle extends Bundle {
   val memRead       = Bool()
   val regWrite      = Bool()
   val writeData     = UInt(32.W)
-  val writeAddress  = UInt(5.W)    //registers has 5.W lenght of address
+  val writeAddress  = UInt(5.W)
 }
 
 class WriteBackBundle extends Bundle {
