@@ -23,10 +23,11 @@ class IDBundle extends Bundle {
 
 //forwarding reading the memory and get one more cycle 
 class FwdEx extends Bundle {
-  val sigMEM        = Bool()
   val address1      = UInt(32.W)
   val address2      = UInt(32.W)
   val memDSrc       = UInt(32.W)
+  val imm           = UInt(32.W)
+  val op2sel        = UInt(1.W)
 }
 
 class EXBundle extends Bundle {

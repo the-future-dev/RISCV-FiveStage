@@ -33,7 +33,7 @@ class InstructionDecode extends MultiIOModule {
     }
   )
 
-  //state
+  //STATE
   val stalled                 = RegInit(false.B)
   val savedInstruction        = Reg(new Instruction)
   val stopped                 = RegInit(false.B)
@@ -57,16 +57,15 @@ class InstructionDecode extends MultiIOModule {
   //RAW: stalling
   // chisel3.experimental.dontTouch(sigEX_STALL)
   val sigEX_STALL             = io.ex.regWrite  && io.ex.memRead  && (io.ex.writeAddress  === io.in.instruction.registerRs1 || io.ex.writeAddress  === io.in.instruction.registerRs2)
-  val sigMEM_STALL            = io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
 
   io.stall                    := sigEX_STALL 
   stalled                     := sigEX_STALL
   savedInstruction            := Mux(sigEX_STALL, io.in.instruction, 0.U.asTypeOf(new Instruction))
   
-  io.fwdOut.sigMEM            := sigMEM_STALL
   io.fwdOut.address1          := Mux((decoder.op1Select === rs1), rs1address, 0.U)
   io.fwdOut.address2          := Mux((decoder.op2Select === rs2), rs2address, 0.U)  
   io.fwdOut.memDSrc           := Mux(io.out.memWrite, rs2address, 0.U)
+  io.fwdOut.op2sel            := decoder.op2Select
 
   //to REGISTERS                                                                                            
   registers.io.readAddress1   := rs1address
@@ -86,6 +85,8 @@ class InstructionDecode extends MultiIOModule {
     JTYPE                     -> decoder.instruction.immediateJType,
     IMFDC                     -> 0.S(12.W)
   )).asTypeOf(SInt(32.W)).asUInt
+  io.fwdOut.imm               :=  immediate
+  
 
   val regsource1 = Mux(io.ex.regWrite && (io.ex.writeAddress === rs1address), io.ex.writeData,
                           Mux(io.mem.regWrite && (io.mem.writeAddress === rs1address), io.mem.writeData,
@@ -102,28 +103,19 @@ class InstructionDecode extends MultiIOModule {
                         )
                       )
                     )
-
-  val a = MuxLookup(decoder.op1Select, 0.U(32.W), Array(
-    rs1                       -> regsource1,
-    PC                        -> 0.U(5.W),
-    IMFDC                     -> 0.U(5.W)
-  ))
-
-  val b = MuxLookup(decoder.op2Select, 0.U(32.W), Array(
-    rs2                       -> regsource2,
-    imm                       -> immediate,
-    IMFDC                     -> 0.U(32.W)
-  ))
-
-    //TO -> EXECUTE
+  
+  //TO -> EXECUTE
   io.out.writeAddress         := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
   io.out.aluOP                := decoder.ALUop
   io.out.memWrite             := decoder.controlSignals.memWrite
   io.out.memRead              := decoder.controlSignals.memRead
   io.out.regWrite             := decoder.controlSignals.regWrite
   io.out.memData              := Mux(io.out.memWrite, regsource2, 0.U)
-  io.out.op1                  := a
-  io.out.op2                  := b
+  io.out.op1                  := Mux(io.wb.writeEnable && (io.wb.writeAddress === rs1address), io.wb.writeData, registers.io.readData1)
+  io.out.op2                  := Mux(io.wb.writeEnable && (io.wb.writeAddress === rs2address), io.wb.writeData, registers.io.readData2)
+  
+  val a = regsource1
+  val b = regsource2
   
   //TO -> INSTRUCTION FETCH
   val branchTypeMap = Array(
@@ -136,8 +128,9 @@ class InstructionDecode extends MultiIOModule {
   )
 
   //Jumping and Branching
-  val jumping     = decoder.controlSignals.jump
-  val branching   = decoder.controlSignals.branch
+  val jumping                 = decoder.controlSignals.jump
+  val branching               = decoder.controlSignals.branch
+  val sigMEM_STALL              = io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
 
   io.outJ.jump    := Mux(branching, MuxLookup(decoder.branchType, false.B, branchTypeMap), jumping)
   io.outJ.nextPC  := Mux(branching, io.in.pc + immediate,
@@ -145,28 +138,32 @@ class InstructionDecode extends MultiIOModule {
                         ((regsource1 + immediate) & "hFFFF_FFFE".U(32.W))
                       )
                     )
-
   when(jumping && decoder.controlSignals.regWrite){
-      io.out.op1                := io.in.pc
-      io.out.op2                := 4.U
-      io.out.aluOP              := ALUOps.ADD
-      io.out.memData            := 0.U
-      io.out.memRead            := false.B
-      io.out.memWrite           := false.B
-      io.out.regWrite           := true.B
-      io.out.writeAddress       := decoder.instruction.registerRd
-  }
-
+      io.out.op1              := io.in.pc
+      io.out.op2              := 0.U
+      io.fwdOut.imm           := 4.U
+      io.out.aluOP            := ALUOps.ADD
+      io.out.memData          := 0.U
+      io.out.memRead          := false.B
+      io.out.memWrite         := false.B
+      io.out.regWrite         := true.B
+      io.out.writeAddress     := decoder.instruction.registerRd
+    }
+  
   //Nothing more to do for this instruction: insert a bubble in the pipeline
   when(io.stall || stopped){
-    io.out.op1                  := 0.U
-    io.out.op2                  := 0.U
-    io.out.aluOP                := ALUOps.DC
-    io.out.memData              := 0.U
-    io.out.writeAddress         := 0.U
-    io.out.regWrite             := false.B
-    io.out.memRead              := false.B
-    io.out.memWrite             := false.B
+    io.out.op1                := 0.U
+    io.out.op2                := 0.U
+    io.fwdOut.imm             := 0.U
+    io.out.aluOP              := ALUOps.DC
+    io.out.memData            := 0.U
+    io.out.writeAddress       := 0.U
+    io.out.regWrite           := false.B
+    io.out.memRead            := false.B
+    io.out.memWrite           := false.B
+    io.fwdOut.address1        := 0.U
+    io.fwdOut.address2        := 0.U
+    io.fwdOut.memDSrc         := 0.U
   }
 
   when((io.in.instruction.asUInt === 0x13.U || io.in.instruction.asUInt === 0x00.U) && (io.in.pc.asTypeOf(SInt(32.W)) >= 0.S) && (io.in.pc =/= 0.U) && !stalled){

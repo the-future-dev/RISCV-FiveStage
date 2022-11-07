@@ -21,7 +21,7 @@ object Manifest {
 
   // val singleTest = "jump.s"
   // val singleTest = "load.s"
-  val singleTest = "memoFib.s"
+  val singleTest = "naiveFib.s"
   // val singleTest = "square.s"
 
   val nopPadded = false
@@ -38,7 +38,8 @@ object Manifest {
     breakPoints        = Nil, // not implemented
     testName           = singleTest,
     // maxSteps           = 200)
-    maxSteps           = 15000)
+    maxSteps           = 700)
+    // maxSteps           = 30000)
 
 
   val allTestOptions: String => TestOptions = name => TestOptions(
