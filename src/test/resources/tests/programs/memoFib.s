@@ -112,6 +112,7 @@ setupmem:
 	lw	a4,-20(s0)
 	lw	a5,-36(s0)
 	blt	a4,a5,.L8
+	nop
 	lw	s0,44(sp)
 	addi	sp,sp,48
 	jr	ra

@@ -21,7 +21,7 @@ class IDBundle extends Bundle {
   val writeAddress  = UInt(5.W)   //address of the destination register
 }
 
-//forwarding reading the memory and get one more cycle 
+//operand picking done in EX => get one more cycle :> 
 class FwdEx extends Bundle {
   val address1      = UInt(32.W)
   val address2      = UInt(32.W)

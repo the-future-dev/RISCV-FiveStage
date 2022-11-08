@@ -19,10 +19,7 @@ import LogParser._
 
 object Manifest {
 
-  // val singleTest = "jump.s"
-  // val singleTest = "load.s"
-  val singleTest = "naiveFib.s"
-  // val singleTest = "square.s"
+  val singleTest = "square.s"
 
   val nopPadded = false
 
@@ -39,7 +36,7 @@ object Manifest {
     testName           = singleTest,
     // maxSteps           = 200)
     maxSteps           = 700)
-    // maxSteps           = 30000)
+    // maxSteps           = 15000)
 
 
   val allTestOptions: String => TestOptions = name => TestOptions(
@@ -114,8 +111,6 @@ class PartsTests extends FlatSpec with Matchers {
     "forward2.s",
     "load.s",
     "load2.s",
-    "jump.s",
-    "jump2.s",
 
     //Milestone 2
     // "add.s",

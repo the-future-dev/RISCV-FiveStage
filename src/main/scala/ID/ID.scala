@@ -34,13 +34,13 @@ class InstructionDecode extends MultiIOModule {
   )
 
   //STATE
-  val stalled                 = RegInit(false.B)
-  val stalled2                = RegInit(false.B)
-  val savedInstruction        = Reg(new Instruction)
-  val stopped                 = RegInit(false.B)
+  val stalled                  = RegInit(false.B)
+  val stalled2                 = RegInit(false.B)
+  val savedInstruction         = Reg(new Instruction)
+  val stopped                  = RegInit(false.B)
   
-  val registers               = Module(new Registers)
-  val decoder                 = Module(new Decoder).io
+  val registers                = Module(new Registers)
+  val decoder                  = Module(new Decoder).io
 
   /** Setup. You should not change this code */
   registers.testHarness.setup := testHarness.registerSetup
@@ -51,37 +51,12 @@ class InstructionDecode extends MultiIOModule {
   io.out.pc                   :=  io.in.pc
   decoder.instruction         :=  Mux(stalled, savedInstruction, io.in.instruction.asTypeOf(new Instruction))
 
-  val rs1address              = decoder.instruction.registerRs1
-  val rs2address              = decoder.instruction.registerRs2
-  val rdaddress               = decoder.instruction.registerRd
-  val jumping                 = decoder.controlSignals.jump
-  val branching               = decoder.controlSignals.branch
+  val rs1address               = decoder.instruction.registerRs1
+  val rs2address               = decoder.instruction.registerRs2
+  val rdaddress                = decoder.instruction.registerRd
+  val jumping                  = decoder.controlSignals.jump
+  val branching                = decoder.controlSignals.branch
 
-  //RAW: stalling
-  val sigEX_STALL             = io.ex.regWrite  && io.ex.memRead  && (io.ex.writeAddress  === io.in.instruction.registerRs1 || io.ex.writeAddress  === io.in.instruction.registerRs2)
-  val sigMEM_STALL_BR         = branching && io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
-  // chisel3.experimental.dontTouch(sigEX_STALL)
-
-  io.stall                    := sigEX_STALL || sigMEM_STALL_BR || stalled2
-  stalled                     := sigEX_STALL || sigMEM_STALL_BR
-  stalled2                    := (sigEX_STALL && branching)
-  savedInstruction            := Mux(sigEX_STALL || sigMEM_STALL_BR, io.in.instruction, 0.U.asTypeOf(new Instruction))
-  
-  io.fwdOut.address1          := Mux((decoder.op1Select === rs1), rs1address, 0.U)
-  io.fwdOut.address2          := Mux((decoder.op2Select === rs2), rs2address, 0.U)  
-  io.fwdOut.memDSrc           := Mux(io.out.memWrite, rs2address, 0.U)
-  io.fwdOut.op2sel            := decoder.op2Select
-
-  //to REGISTERS                                                                                            
-  registers.io.readAddress1   := rs1address
-  registers.io.readAddress2   := rs2address
-
-    //-> WB
-  registers.io.writeEnable    := io.wb.writeEnable
-  registers.io.writeAddress   := io.wb.writeAddress
-  registers.io.writeData      := io.wb.writeData
-
-    //setup
   val immediate = MuxLookup(decoder.immType, 0.S(12.W), Array(
     ITYPE                     -> decoder.instruction.immediateIType,
     STYPE                     -> decoder.instruction.immediateSType,
@@ -90,8 +65,6 @@ class InstructionDecode extends MultiIOModule {
     JTYPE                     -> decoder.instruction.immediateJType,
     IMFDC                     -> 0.S(12.W)
   )).asTypeOf(SInt(32.W)).asUInt
-  io.fwdOut.imm               :=  immediate
-  
 
   val regsource1 = Mux(io.ex.regWrite && (io.ex.writeAddress === rs1address), io.ex.writeData,
                           Mux(io.mem.regWrite && (io.mem.writeAddress === rs1address), io.mem.writeData,
@@ -108,8 +81,33 @@ class InstructionDecode extends MultiIOModule {
                         )
                       )
                     )
+
+  //RAW: stalling
+  val sigEX_STALL             = io.ex.regWrite  && io.ex.memRead  && (io.ex.writeAddress  === io.in.instruction.registerRs1 || io.ex.writeAddress  === io.in.instruction.registerRs2)
+  val sigMEM_STALL_BR         = branching && io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
+  // chisel3.experimental.dontTouch(sigEX_STALL)
+
+  io.stall                    := sigEX_STALL || sigMEM_STALL_BR || stalled2
+  stalled                     := sigEX_STALL || sigMEM_STALL_BR
+  stalled2                    := (sigEX_STALL && branching)
+  savedInstruction            := Mux(sigEX_STALL || sigMEM_STALL_BR, io.in.instruction, 0.U.asTypeOf(new Instruction))
   
-  //TO -> EXECUTE
+  io.fwdOut.address1          := Mux((decoder.op1Select === rs1), rs1address, 0.U)
+  io.fwdOut.address2          := Mux((decoder.op2Select === rs2), rs2address, 0.U)  
+  io.fwdOut.memDSrc           := Mux(io.out.memWrite, rs2address, 0.U)
+  io.fwdOut.op2sel            := decoder.op2Select
+  io.fwdOut.imm               := immediate
+
+  //to -> REGISTERS                                                                                            
+  registers.io.readAddress1   := rs1address
+  registers.io.readAddress2   := rs2address
+
+  //to -> WB
+  registers.io.writeEnable    := io.wb.writeEnable
+  registers.io.writeAddress   := io.wb.writeAddress
+  registers.io.writeData      := io.wb.writeData
+  
+  //to -> EXECUTE
   io.out.writeAddress         := Mux(decoder.controlSignals.regWrite, decoder.instruction.registerRd, 0.U)
   io.out.aluOP                := decoder.ALUop
   io.out.memWrite             := decoder.controlSignals.memWrite
@@ -122,7 +120,7 @@ class InstructionDecode extends MultiIOModule {
   val a = regsource1
   val b = regsource2
   
-  //TO -> INSTRUCTION FETCH
+  //to -> INSTRUCTION FETCH
   val branchTypeMap = Array(
     branchType.beq            -> (a === b),
     branchType.neq            -> (a =/= b),
@@ -135,13 +133,13 @@ class InstructionDecode extends MultiIOModule {
   //Jumping and Branching
   io.outJ.jump                := Mux(io.stall, false.B, Mux(branching, MuxLookup(decoder.branchType, false.B, branchTypeMap), jumping))
   val pcReal                   = Mux((!io.stall && (stalled || stalled2)), io.in.pc-4.U, io.in.pc)
-  io.outJ.nextPC              := Mux(io.stall, 0.U,
-                                Mux(branching, pcReal + immediate,
-                                  Mux(decoder.immType === JTYPE, pcReal + immediate,
-                                    ((regsource1 + immediate) & "hFFFF_FFFE".U(32.W))
+  io.outJ.nextPC              := Mux(io.stall || !jumping, 0.U,
+                                  Mux(branching, pcReal + immediate,
+                                    Mux(decoder.immType === JTYPE, pcReal + immediate,
+                                      ((regsource1 + immediate) & "hFFFF_FFFE".U(32.W))
+                                    )
                                   )
                                 )
-                              )
   
   when(jumping && decoder.controlSignals.regWrite && !io.stall){
     io.out.op1                := pcReal
