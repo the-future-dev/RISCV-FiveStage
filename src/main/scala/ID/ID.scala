@@ -59,13 +59,13 @@ class InstructionDecode extends MultiIOModule {
 
   //RAW: stalling
   val sigEX_STALL             = io.ex.regWrite  && io.ex.memRead  && (io.ex.writeAddress  === io.in.instruction.registerRs1 || io.ex.writeAddress  === io.in.instruction.registerRs2)
-  val sigMEM_STALL            = io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
+  val sigMEM_STALL_BR         = branching && io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
   // chisel3.experimental.dontTouch(sigEX_STALL)
 
-  io.stall                    := sigEX_STALL || (sigMEM_STALL && jumping) || stalled2
-  stalled                     := sigEX_STALL || (sigMEM_STALL && jumping)
-  stalled2                    := (sigEX_STALL && jumping)
-  savedInstruction            := Mux(sigEX_STALL || sigMEM_STALL, io.in.instruction, 0.U.asTypeOf(new Instruction))
+  io.stall                    := sigEX_STALL || sigMEM_STALL_BR || stalled2
+  stalled                     := sigEX_STALL || sigMEM_STALL_BR
+  stalled2                    := (sigEX_STALL && branching)
+  savedInstruction            := Mux(sigEX_STALL || sigMEM_STALL_BR, io.in.instruction, 0.U.asTypeOf(new Instruction))
   
   io.fwdOut.address1          := Mux((decoder.op1Select === rs1), rs1address, 0.U)
   io.fwdOut.address2          := Mux((decoder.op2Select === rs2), rs2address, 0.U)  
@@ -133,26 +133,26 @@ class InstructionDecode extends MultiIOModule {
   )
 
   //Jumping and Branching
-  io.outJ.jump    := Mux(io.stall, false.B, Mux(branching, MuxLookup(decoder.branchType, false.B, branchTypeMap), jumping))
-  val pcReal = Mux((!io.stall && (stalled || stalled2)), io.in.pc-4.U, io.in.pc)
-  io.outJ.nextPC  := Mux(io.stall, 0.U,
-                      Mux(branching, pcReal + immediate,
-                        Mux(decoder.immType === JTYPE, pcReal + immediate,
-                          ((regsource1 + immediate) & "hFFFF_FFFE".U(32.W))
-                        )
-                      )
-                    )
+  io.outJ.jump                := Mux(io.stall, false.B, Mux(branching, MuxLookup(decoder.branchType, false.B, branchTypeMap), jumping))
+  val pcReal                   = Mux((!io.stall && (stalled || stalled2)), io.in.pc-4.U, io.in.pc)
+  io.outJ.nextPC              := Mux(io.stall, 0.U,
+                                Mux(branching, pcReal + immediate,
+                                  Mux(decoder.immType === JTYPE, pcReal + immediate,
+                                    ((regsource1 + immediate) & "hFFFF_FFFE".U(32.W))
+                                  )
+                                )
+                              )
   
   when(jumping && decoder.controlSignals.regWrite && !io.stall){
-    io.out.op1              := pcReal
-    io.out.op2              := 0.U
-    io.fwdOut.imm           := 4.U
-    io.out.aluOP            := ALUOps.ADD
-    io.out.memData          := 0.U
-    io.out.memRead          := false.B
-    io.out.memWrite         := false.B
-    io.out.regWrite         := true.B
-    io.out.writeAddress     := decoder.instruction.registerRd
+    io.out.op1                := pcReal
+    io.out.op2                := 0.U
+    io.fwdOut.imm             := 4.U
+    io.out.aluOP              := ALUOps.ADD
+    io.out.memData            := 0.U
+    io.out.memRead            := false.B
+    io.out.memWrite           := false.B
+    io.out.regWrite           := true.B
+    io.out.writeAddress       := decoder.instruction.registerRd
   }
   
   //Nothing more to do for this instruction: bubble in the pipeline
