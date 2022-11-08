@@ -30,16 +30,12 @@ find:
 	sw	a5,-28(s0)
 	lw	a4,-28(s0)
 	lw	a5,-52(s0)
-	nop
-	nop
 	bne	a4,a5,.CHECKLEFT
 	lw	a5,-20(s0)
 	j	.L1
 .CHECKLEFT:
 	lw	a4,-28(s0)
 	lw	a5,-52(s0)
-	nop
-	nop
 	ble	a4,a5,.CHECKRIGHT
 	lw	a5,-20(s0)
 	lw	a5,0(a5)
@@ -59,7 +55,6 @@ find:
 .CHECKRIGHT:
 	lw	a4,-28(s0)
 	lw	a5,-52(s0)
-	nop
 	bge	a4,a5,.L6
 	lw	a5,-20(s0)
 	lw	a5,0(a5)
@@ -81,8 +76,6 @@ find:
 	j	.L1
 .L2:
 	lw	a5,-24(s0)
-	nop
-	nop
 	beqz	a5,.WHILE
 .L1:
 	mv	a0,a5

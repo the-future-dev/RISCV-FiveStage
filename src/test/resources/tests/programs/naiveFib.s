@@ -19,14 +19,11 @@ f:
 	addi	s0,sp,32
 	sw	a0,-20(s0)
 	lw	a5,-20(s0)
-	nop
-	nop
 	bnez	a5,.L2
 	li	a5,0
 	j	.L3
 .L2:
 	lw	a4,-20(s0)
-	nop
 	li	a5,1
 	bne	a4,a5,.L4
 	li	a5,1

@@ -35,6 +35,7 @@ class InstructionDecode extends MultiIOModule {
 
   //STATE
   val stalled                 = RegInit(false.B)
+  val stalled2                = RegInit(false.B)
   val savedInstruction        = Reg(new Instruction)
   val stopped                 = RegInit(false.B)
   
@@ -53,14 +54,18 @@ class InstructionDecode extends MultiIOModule {
   val rs1address              = decoder.instruction.registerRs1
   val rs2address              = decoder.instruction.registerRs2
   val rdaddress               = decoder.instruction.registerRd
+  val jumping                 = decoder.controlSignals.jump
+  val branching               = decoder.controlSignals.branch
 
   //RAW: stalling
-  // chisel3.experimental.dontTouch(sigEX_STALL)
   val sigEX_STALL             = io.ex.regWrite  && io.ex.memRead  && (io.ex.writeAddress  === io.in.instruction.registerRs1 || io.ex.writeAddress  === io.in.instruction.registerRs2)
+  val sigMEM_STALL            = io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
+  // chisel3.experimental.dontTouch(sigEX_STALL)
 
-  io.stall                    := sigEX_STALL 
-  stalled                     := sigEX_STALL
-  savedInstruction            := Mux(sigEX_STALL, io.in.instruction, 0.U.asTypeOf(new Instruction))
+  io.stall                    := sigEX_STALL || (sigMEM_STALL && jumping) || stalled2
+  stalled                     := sigEX_STALL || (sigMEM_STALL && jumping)
+  stalled2                    := (sigEX_STALL && jumping)
+  savedInstruction            := Mux(sigEX_STALL || sigMEM_STALL, io.in.instruction, 0.U.asTypeOf(new Instruction))
   
   io.fwdOut.address1          := Mux((decoder.op1Select === rs1), rs1address, 0.U)
   io.fwdOut.address2          := Mux((decoder.op2Select === rs2), rs2address, 0.U)  
@@ -128,29 +133,29 @@ class InstructionDecode extends MultiIOModule {
   )
 
   //Jumping and Branching
-  val jumping                 = decoder.controlSignals.jump
-  val branching               = decoder.controlSignals.branch
-  val sigMEM_STALL              = io.mem.regWrite && io.mem.memRead && (io.mem.writeAddress === io.in.instruction.registerRs1 || io.mem.writeAddress === io.in.instruction.registerRs2)
-
-  io.outJ.jump    := Mux(branching, MuxLookup(decoder.branchType, false.B, branchTypeMap), jumping)
-  io.outJ.nextPC  := Mux(branching, io.in.pc + immediate,
-                      Mux(decoder.immType === JTYPE, io.in.pc + immediate,
-                        ((regsource1 + immediate) & "hFFFF_FFFE".U(32.W))
+  io.outJ.jump    := Mux(io.stall, false.B, Mux(branching, MuxLookup(decoder.branchType, false.B, branchTypeMap), jumping))
+  val pcReal = Mux((!io.stall && (stalled || stalled2)), io.in.pc-4.U, io.in.pc)
+  io.outJ.nextPC  := Mux(io.stall, 0.U,
+                      Mux(branching, pcReal + immediate,
+                        Mux(decoder.immType === JTYPE, pcReal + immediate,
+                          ((regsource1 + immediate) & "hFFFF_FFFE".U(32.W))
+                        )
                       )
                     )
-  when(jumping && decoder.controlSignals.regWrite){
-      io.out.op1              := io.in.pc
-      io.out.op2              := 0.U
-      io.fwdOut.imm           := 4.U
-      io.out.aluOP            := ALUOps.ADD
-      io.out.memData          := 0.U
-      io.out.memRead          := false.B
-      io.out.memWrite         := false.B
-      io.out.regWrite         := true.B
-      io.out.writeAddress     := decoder.instruction.registerRd
-    }
   
-  //Nothing more to do for this instruction: insert a bubble in the pipeline
+  when(jumping && decoder.controlSignals.regWrite && !io.stall){
+    io.out.op1              := pcReal
+    io.out.op2              := 0.U
+    io.fwdOut.imm           := 4.U
+    io.out.aluOP            := ALUOps.ADD
+    io.out.memData          := 0.U
+    io.out.memRead          := false.B
+    io.out.memWrite         := false.B
+    io.out.regWrite         := true.B
+    io.out.writeAddress     := decoder.instruction.registerRd
+  }
+  
+  //Nothing more to do for this instruction: bubble in the pipeline
   when(io.stall || stopped){
     io.out.op1                := 0.U
     io.out.op2                := 0.U

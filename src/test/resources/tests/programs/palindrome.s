@@ -40,8 +40,6 @@ isPalindrome:
 	sw	a2,-44(s0)
 	lw	a4,-40(s0)
 	lw	a5,-44(s0)
-	nop
-	nop
 	blt	a4,a5,.L6
 	li	a5,1
 	j	.L7
@@ -61,8 +59,6 @@ isPalindrome:
 	andi	a5,a5,0xff
 	sw	a5,-20(s0)
 	lw	a5,-20(s0)
-	nop
-	nop
 	beqz	a5,.CompareFailed
 	lw	a5,-40(s0)
 	addi	a4,a5,1

@@ -14,8 +14,6 @@ isPalindrome.part.0:
 	add	a5,a0,a3
 	lw	a4,0(a4)
 	lw	a5,0(a5)
-	nop
-	nop
 	beq	a4,a5,.L10
 	li	a5,0
 .L6:
@@ -71,7 +69,6 @@ isPalindrome:
 	lw	a4,8(a4)
 	lw	a5,-8(a5)
 	li	a3,0
-	nop
 	bne	a4,a5,.L28
 	addi	a1,a1,3
 	addi	a2,a2,-3

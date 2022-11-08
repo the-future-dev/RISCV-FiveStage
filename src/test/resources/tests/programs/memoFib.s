@@ -21,8 +21,6 @@ main:
 	lw	ra,28(sp)
 	lw	s0,24(sp)
 	addi	sp,sp,32
-	nop
-	nop
 	jr	ra
 f:
 	addi	sp,sp,-48
@@ -38,8 +36,6 @@ f:
 	lw	a4,-40(s0)
 	add	a5,a4,a5
 	lw	a5,0(a5)
-	nop
-	nop
 	beqz	a5,.L2
 	lw	a5,-36(s0)
 	slli	a5,a5,2
@@ -49,15 +45,12 @@ f:
 	j	.L3
 .L2:
 	lw	a5,-36(s0)
-	nop
-	nop
 	bnez	a5,.L4
 	li	a5,0
 	j	.L3
 .L4:
 	lw	a4,-36(s0)
 	li	a5,1
-	nop
 	bne	a4,a5,.L5
 	li	a5,1
 	j	.L3
@@ -118,10 +111,7 @@ setupmem:
 .L7:
 	lw	a4,-20(s0)
 	lw	a5,-36(s0)
-	nop
-	nop
 	blt	a4,a5,.L8
-	nop
 	lw	s0,44(sp)
 	addi	sp,sp,48
 	jr	ra
