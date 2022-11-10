@@ -32,15 +32,15 @@ class InstructionFetch extends MultiIOModule {
   IMEM.testHarness.setupSignals := testHarness.IMEMsetup
   testHarness.PC := IMEM.testHarness.requestedAddress
 
-  //Handling the program counter
+  //Program Counter
   io.out.pc                   := Mux(io.inJ.jump, io.inJ.nextPC, pc)
   pc                          := Mux(io.inJ.jump, io.inJ.nextPC, pc)+Mux(io.stall, 0.U, 4.U)
 
-  //Handling the instruction fetch
+  //IMEM
   IMEM.io.instructionAddress  := io.out.pc
   instruction                 := IMEM.io.instruction.asTypeOf(new Instruction)
 
-  //stalling
+  //Stalling
   io.out.instruction          := Mux(stalled, lastInstruction, instruction)
   stalled                     := io.stall
   lastInstruction             := io.out.instruction
@@ -51,5 +51,4 @@ class InstructionFetch extends MultiIOModule {
     pc          := 0.U
     instruction := Instruction.NOP
   }
-  //printf("\npc: %d|", io.out.pc)
 }

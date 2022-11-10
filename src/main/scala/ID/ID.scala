@@ -89,12 +89,15 @@ class InstructionDecode extends MultiIOModule {
 
   io.stall                    := sigEX_STALL || sigMEM_STALL_BR || stalled2
   stalled                     := sigEX_STALL || sigMEM_STALL_BR
-  stalled2                    := (sigEX_STALL && branching)
+  stalled2                    := sigEX_STALL && branching
   savedInstruction            := Mux(sigEX_STALL || sigMEM_STALL_BR, io.in.instruction, 0.U.asTypeOf(new Instruction))
   
+  //forwarding
   io.fwdOut.address1          := Mux((decoder.op1Select === rs1), rs1address, 0.U)
   io.fwdOut.address2          := Mux((decoder.op2Select === rs2), rs2address, 0.U)  
   io.fwdOut.memDSrc           := Mux(io.out.memWrite, rs2address, 0.U)
+    //operator 2 selection
+  io.fwdOut.op1sel            := decoder.op1Select
   io.fwdOut.op2sel            := decoder.op2Select
   io.fwdOut.imm               := immediate
 
@@ -132,24 +135,19 @@ class InstructionDecode extends MultiIOModule {
 
   //Jumping and Branching
   io.outJ.jump                := Mux(io.stall, false.B, Mux(branching, MuxLookup(decoder.branchType, false.B, branchTypeMap), jumping))
-  val pcReal                   = Mux((!io.stall && (stalled || stalled2)), io.in.pc-4.U, io.in.pc)
+  val pcAfterStalling          = Mux((!io.stall && (stalled || stalled2)), io.in.pc-4.U, io.in.pc)
   io.outJ.nextPC              := Mux(io.stall || !jumping, 0.U,
-                                  Mux(branching, pcReal + immediate,
-                                    Mux(decoder.immType === JTYPE, pcReal + immediate,
+                                  Mux(branching, pcAfterStalling + immediate,
+                                    Mux(decoder.immType === JTYPE, pcAfterStalling + immediate,
                                       ((regsource1 + immediate) & "hFFFF_FFFE".U(32.W))
                                     )
                                   )
                                 )
   
   when(jumping && decoder.controlSignals.regWrite && !io.stall){
-    io.out.op1                := pcReal
-    io.out.op2                := 0.U
+    io.out.pc                 := pcAfterStalling
     io.fwdOut.imm             := 4.U
     io.out.aluOP              := ALUOps.ADD
-    io.out.memData            := 0.U
-    io.out.memRead            := false.B
-    io.out.memWrite           := false.B
-    io.out.regWrite           := true.B
     io.out.writeAddress       := decoder.instruction.registerRd
   }
   
@@ -170,6 +168,6 @@ class InstructionDecode extends MultiIOModule {
   }
 
   when((io.in.instruction.asUInt === 0x13.U || io.in.instruction.asUInt === 0x00.U) && (io.in.pc.asTypeOf(SInt(32.W)) >= 0.S) && (io.in.pc =/= 0.U) && !stalled){
-    stopped := true.B
+    stopped                   := true.B
   }
 }

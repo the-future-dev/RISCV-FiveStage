@@ -54,8 +54,6 @@ object Manifest {
 
 }
 
-
-
 class ProfileBranching extends FlatSpec with Matchers {
   it should "profile some branches" in {
     BranchProfiler.profileBranching(
@@ -101,9 +99,9 @@ class AllTests extends FlatSpec with Matchers {
   }
 }
 
-class PartsTests extends FlatSpec with Matchers {
+class Milestone1 extends FlatSpec with Matchers {
   val parts = Array(
-    //Milestone 1 - OK for now
+    //Milestone 1
     "arith.s",
     "addi.s",
     "arithImm.s",
@@ -111,18 +109,41 @@ class PartsTests extends FlatSpec with Matchers {
     "forward2.s",
     "load.s",
     "load2.s",
+  )
+  it should "just werk" in {
+    val werks = parts.filterNot(_ == "convolution.s").map{testname => 
+      say(s"testing $testname")
+      val opts = Manifest.allTestOptions(testname)
+      (testname, TestRunner.run(opts))
+    }
+    if(werks.foldLeft(true)(_ && _._2))
+      say(Console.GREEN + "All tests successful!" + Console.RESET)
+    else {
+      val success = werks.map(x => if(x._2) 1 else 0).sum
+      val total   = werks.size
+      say(s"$success/$total tests successful")
+      werks.foreach{ case(name, success) =>
+        val msg = if(success) Console.GREEN + s"$name successful" + Console.RESET
+        else Console.RED + s"$name failed" + Console.RESET
+        say(msg)
+      }
+    }
+  }
+}
 
+class Milestone2 extends FlatSpec with Matchers {
+  val parts = Array(
     //Milestone 2
-    // "add.s",
-    // "BTreeManyO3.s",
-    // "BTreeO3.s",
-    // "constants.s",
-    // "memoFib.s",
-    // "naiveFib.s",
-    // "palindrome.s",
-    // "palindromeO3.s",
-    // "searchRegularO0.s",
-    // "square.s", 
+    "add.s",
+    "BTreeManyO3.s",
+    "BTreeO3.s",
+    "constants.s",
+    "memoFib.s",
+    "naiveFib.s",
+    "palindrome.s",
+    "palindromeO3.s",
+    "searchRegularO0.s",
+    "square.s", 
   )
   it should "just werk" in {
     val werks = parts.filterNot(_ == "convolution.s").map{testname => 
@@ -169,39 +190,4 @@ class AllTestsWindows extends FlatSpec with Matchers {
       }
     }
   }
-}
-
-
-
-class MyTest extends FlatSpec with Matchers {
-  behavior of "General structure: not pipelined"
-  it should "desplay what is happening" in{
-    say(s"\t STARTING")
-
-    chisel3.iotesters.Driver.execute(Array("--generate-vcd-output", "on", "--backend-name", "treadle"),
-      () => new InstructionDecode())
-      {
-        c => new MyTestRunner(c)
-    } should be(true)
-  }
-}
-
-class MyTestRunner(c: InstructionDecode) extends chisel3.iotesters.PeekPokeTester(c){
-  say(s"INIT:\n")
-
-  for(i <- 0 until 45){
-    say(s"\n\n\n\nClock: $i\n")
-    // val input = scala.util.Random.nextInt(10)
-    // poke(c.io.PCIn, (input))
-    
-    // val o = peek(c.IFBarrier.PCOut)
-    // val o2 = peek(c.IF.io.PC)
-    // say(s"\nPC IF:\t$o2"
-    // say(s"\nPC barrier: $o")
-
-    // expect(c.io.PCOut, input)
-    step(1)
-  }
-
-  say("END:")
 }

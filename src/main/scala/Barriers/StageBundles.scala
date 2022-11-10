@@ -27,6 +27,7 @@ class FwdEx extends Bundle {
   val address2      = UInt(32.W)
   val memDSrc       = UInt(32.W)
   val imm           = UInt(32.W)
+  val op1sel        = UInt(1.W)
   val op2sel        = UInt(1.W)
 }
 
@@ -62,9 +63,4 @@ class WriteBackBundle extends Bundle {
 class JumpBundle extends Bundle {
   val jump          = Bool()
   val nextPC        = UInt(32.W)
-}
-
-class Prediction extends Bundle {
-  val avsB       = UInt(32.W)
-  val memFwdr       = Bool()
 }

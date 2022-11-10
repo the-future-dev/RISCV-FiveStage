@@ -4,6 +4,7 @@ import chisel3.util.{ BitPat, MuxCase, MuxLookup}
 import chisel3.experimental.MultiIOModule
 
 import ALUOps._
+import Op1Select._
 import Op2Select._
 
 class Execute extends MultiIOModule {
@@ -13,56 +14,54 @@ class Execute extends MultiIOModule {
       val fwdIn       = Input(new FwdEx)
       val wb          = Input(new WriteBackBundle)
       val mem         = Input(new MEMBundle)
-      val ex          = Input(new EXBundle)
 
       val out         = Output(new EXBundle)
     }
   )
 
   //forwarding
-  val x = Mux(io.ex.regWrite && (io.ex.writeAddress === io.fwdIn.address1), io.ex.writeData,
-            Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.address1), io.mem.writeData,
-              Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.address1), io.wb.writeData,
-                io.in.op1
-              )
+  val x = Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.address1), io.mem.writeData,
+            Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.address1), io.wb.writeData,
+              MuxLookup(io.fwdIn.op1sel, 0.U(32.W), Array(
+                rs1          -> io.in.op1,
+                PC           -> io.in.pc
+              ))
             )
           )
   
-  val y = Mux(io.ex.regWrite && (io.ex.writeAddress === io.fwdIn.address2), io.ex.writeData,
-            Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.address2), io.mem.writeData,
-              Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.address2), io.wb.writeData,
-                MuxLookup(io.fwdIn.op2sel, 0.U(32.W), Array(
-                  rs2                       -> io.in.op2,
-                  imm                       -> io.fwdIn.imm
-                ))
-              )
+  val y = Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.address2), io.mem.writeData,
+            Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.address2), io.wb.writeData,
+              MuxLookup(io.fwdIn.op2sel, 0.U(32.W), Array(
+                rs2   -> io.in.op2,
+                imm   -> io.fwdIn.imm
+              ))
             )
           )
 
   //ALU execution
   val resultAlu = MuxLookup(io.in.aluOP, 0.U(32.W), Array(
-    ADD         -> (x + y),
-    SUB         -> (x - y),
-    AND         -> (x & y),
-    OR          -> (x | y),
-    XOR         -> (x ^ y),
-    SLL         -> (x << y(4, 0)),
-    SRL         -> (x >> y(4, 0)),
-    SRA         -> (x.asSInt >> y(4, 0)).asUInt,
-    SLT         -> (x.asSInt < y.asSInt),
-    SLTU        -> (x < y),
-    COPY_A      -> x,
-    COPY_B      -> y,
-    ALUOps.DC   -> 0.U
+    ADD               -> (x + y),
+    SUB               -> (x - y),
+    AND               -> (x & y),
+    OR                -> (x | y),
+    XOR               -> (x ^ y),
+    SLL               -> (x << y(4, 0)),
+    SRL               -> (x >> y(4, 0)),
+    SRA               -> (x.asSInt >> y(4, 0)).asUInt,
+    SLT               -> (x.asSInt < y.asSInt),
+    SLTU              -> (x < y),
+    COPY_A            -> x,
+    COPY_B            -> y,
+    ALUOps.DC         -> 0.U
   )).asTypeOf(UInt(32.W))
 
   //TO -> MEMORY FETCH
   io.out.pc           := io.in.pc
   io.out.regWrite     := io.in.regWrite && io.in.writeAddress =/= 0.U
-  io.out.memData      := Mux(io.ex.regWrite && (io.ex.writeAddress === io.fwdIn.memDSrc), io.ex.writeData,
-                          Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.memDSrc), io.mem.writeData,
-                            Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.memDSrc), io.wb.writeData,
-                              io.in.memData)))
+  io.out.memData      := Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.memDSrc), io.mem.writeData,
+                          Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.memDSrc), io.wb.writeData,
+                            io.in.memData)
+                          )
   io.out.writeData    := resultAlu
   io.out.memRead      := io.in.memRead
   io.out.memWrite     := io.in.memWrite
