@@ -11,32 +11,26 @@ class Execute extends MultiIOModule {
     val io = IO(
     new Bundle {
       val in          = Input(new IDBundle)
-      val fwdIn       = Input(new FwdEx)
       val wb          = Input(new WriteBackBundle)
-      val mem         = Input(new MEMBundle)
 
       val out         = Output(new EXBundle)
     }
   )
 
   //forwarding
-  val x = Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.address1), io.mem.writeData,
-            Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.address1), io.wb.writeData,
-              MuxLookup(io.fwdIn.op1sel, 0.U(32.W), Array(
+  val x = Mux(io.wb.writeEnable && (io.wb.writeAddress === io.in.address1), io.wb.writeData,
+              MuxLookup(io.in.op1sel, 0.U(32.W), Array(
                 rs1          -> io.in.op1,
                 PC           -> io.in.pc
               ))
             )
-          )
   
-  val y = Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.address2), io.mem.writeData,
-            Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.address2), io.wb.writeData,
-              MuxLookup(io.fwdIn.op2sel, 0.U(32.W), Array(
+  val y = Mux(io.wb.writeEnable && (io.wb.writeAddress === io.in.address2), io.wb.writeData,
+              MuxLookup(io.in.op2sel, 0.U(32.W), Array(
                 rs2   -> io.in.op2,
-                imm   -> io.fwdIn.imm
+                imm   -> io.in.imm
               ))
             )
-          )
 
   //ALU execution
   val resultAlu = MuxLookup(io.in.aluOP, 0.U(32.W), Array(
@@ -58,12 +52,9 @@ class Execute extends MultiIOModule {
   //TO -> MEMORY FETCH
   io.out.pc           := io.in.pc
   io.out.regWrite     := io.in.regWrite && io.in.writeAddress =/= 0.U
-  io.out.memData      := Mux(io.mem.regWrite && (io.mem.writeAddress === io.fwdIn.memDSrc), io.mem.writeData,
-                          Mux(io.wb.writeEnable && (io.wb.writeAddress === io.fwdIn.memDSrc), io.wb.writeData,
-                            io.in.memData)
-                          )
-  io.out.writeData    := resultAlu
   io.out.memRead      := io.in.memRead
   io.out.memWrite     := io.in.memWrite
   io.out.writeAddress := io.in.writeAddress
+
+  io.out.writeData    := resultAlu
 }

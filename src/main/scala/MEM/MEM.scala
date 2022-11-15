@@ -17,15 +17,14 @@ class MemoryFetch() extends MultiIOModule {
 
   val io = IO(
     new Bundle {
-      val in              = Input(new EXBundle)
+      val in              = Input(new IDBundle)
+      val wb              = Input(new WriteBackBundle)
+
       val dmemReadResult  = Output(UInt(32.W))
-      
-      val out             = Output(new MEMBundle)
     }
   )
   
-  io.out.pc               := io.in.pc
-  
+  //io.in.pc
   val DMEM = Module(new DMEM)
   /** Setup. You should not change this code */
   DMEM.testHarness.setup  := testHarness.DMEMsetup
@@ -33,16 +32,10 @@ class MemoryFetch() extends MultiIOModule {
   testHarness.testUpdates := DMEM.testHarness.testUpdates
 
   //DMEM handling:
-  DMEM.io.dataIn      := io.in.memData
-  DMEM.io.dataAddress := io.in.writeData
+  DMEM.io.dataIn      := Mux(io.wb.writeEnable && (io.wb.writeAddress === io.in.memDSrc), io.wb.writeData, io.in.memData)
+  DMEM.io.dataAddress := Mux(io.wb.writeEnable && (io.wb.writeAddress === io.in.address1), io.wb.writeData, io.in.op1) + io.in.imm;
   DMEM.io.writeEnable := io.in.memWrite
 
-  //to WB
-  io.out.regWrite     := io.in.regWrite
-  io.out.writeData    := io.in.writeData
-  io.out.writeAddress := io.in.writeAddress
-
-  //read memory
-  io.out.memRead      := io.in.memRead
+  //Write Back
   io.dmemReadResult   := DMEM.io.dataOut
 }

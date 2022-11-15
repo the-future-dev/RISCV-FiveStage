@@ -19,7 +19,7 @@ import LogParser._
 
 object Manifest {
 
-  val singleTest = "square.s"
+  val singleTest = "memoFib.s"
 
   val nopPadded = false
 
@@ -29,14 +29,15 @@ object Manifest {
     printParsedProgram = false,
     printVMtrace       = false,
     printVMfinal       = false,
-    printMergedTrace   = true,
+    printMergedTrace   = false,
     printBinary        = false,
     nopPadded          = nopPadded,
     breakPoints        = Nil, // not implemented
     testName           = singleTest,
     // maxSteps           = 200)
-    maxSteps           = 700)
-    // maxSteps           = 15000)
+    // maxSteps           = 700)
+    // maxSteps           = 1000)
+    maxSteps           = 15000)
 
 
   val allTestOptions: String => TestOptions = name => TestOptions(

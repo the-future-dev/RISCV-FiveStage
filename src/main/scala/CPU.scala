@@ -24,7 +24,7 @@ class CPU extends MultiIOModule {
   val IFBarrier  = Module(new IFBarrier).io
   val IDBarrier  = Module(new IDBarrier).io
   val EXBarrier  = Module(new EXBarrier).io
-  val MEMBarrier = Module(new MEMBarrier).io
+  // val MEMBarrier = Module(new MEMBarrier).io
 
   //Modules init
   val ID  = Module(new InstructionDecode)
@@ -53,24 +53,21 @@ class CPU extends MultiIOModule {
   ID.io.out     <>    IDBarrier.in
   EX.io.in      <>    IDBarrier.out
   EX.io.out     <>    EXBarrier.in
-  MEM.io.in     <>    EXBarrier.out
-  MEM.io.out    <>    MEMBarrier.in
+  MEM.io.in     <>    IDBarrier.out
 
-  WB.io.in      <>    MEMBarrier.out
+  WB.io.inEXE   <>    EXBarrier.out
   WB.io.dmemData<>    MEM.io.dmemReadResult   //the data memory gives the value coordinnated to the data exiting the MEMBarrier
   WB.io.out     <>    ID.io.wb                //to execute the WB
 
   //stalling enhancing
   IF.io.stall   <>    ID.io.stall
-  ID.io.fwdOut  <>    IDBarrier.iFw
-  IDBarrier.oFw <>    EX.io.fwdIn
   EX.io.wb      <>    WB.io.out
-  EX.io.mem     <>    MEM.io.out
+  MEM.io.wb     <>    WB.io.out
 
   //jump managing
   ID.io.outJ    <>    IF.io.inJ
 
   //ID enhancing
   EX.io.out     <>    ID.io.ex
-  MEM.io.out    <>    ID.io.mem
+  // MEM.io.out    <>    ID.io.mem
 }
