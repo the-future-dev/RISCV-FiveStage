@@ -72,8 +72,10 @@ class CPU extends MultiIOModule {
   // MEM.io.out    <>    ID.io.mem
 
   //Branch prediction Evaluation
-  val BHR = Module(new BranchHistoryRegister()).io
-  val GHP = Module(new GlobalHistoryPredictor()).io
+  val BHR     = Module(new BranchHistoryRegister()).io
+  val GHP     = Module(new GlobalHistoryPredictor()).io
+  val LHP     = Module(new LocalHistoryPredictor()).io
+  val gshare  = Module(new GsharePredictor()).io
 
   BHR.we          := ID.io.br
   BHR.taken       := ID.io.taken
@@ -83,16 +85,35 @@ class CPU extends MultiIOModule {
   GHP.actualTaken := ID.io.taken
   GHP.we          := ID.io.br
 
+  LHP.address     := ID.io.in.pc
+  LHP.we          := ID.io.br
+  LHP.actualTaken := ID.io.taken
+
+  gshare.address      := ID.io.in.pc
+  gshare.we           := ID.io.br
+  gshare.actualTaken  := ID.io.taken
+
   //Branch prediction Evaluation
-  val nBranches   = RegInit(UInt(32.W), 0.U)
-  val rightGlobal = RegInit(UInt(32.W), 0.U)
+  val nBranches    = RegInit(UInt(32.W), 0.U)
+  val rightGlobal  = RegInit(UInt(32.W), 0.U)
+  val rightLocal   = RegInit(UInt(32.W), 0.U)
+  val gshareCount  = RegInit(UInt(32.W), 0.U)
 
   when(ID.io.br){
     nBranches := nBranches+1.U
     when(ID.io.taken === GHP.taken){
       rightGlobal := rightGlobal+1.U
     }
+    when(ID.io.taken === LHP.taken){
+      rightLocal  := rightLocal +1.U
+    }
+    when(ID.io.taken === gshare.taken){
+      gshareCount := gshareCount +1.U
+    }
   }
+
   
-  printf("%d branches: global %d\n ", nBranches, rightGlobal)
+  when ((nBranches === 1738.U )& ID.io.br){
+    printf("\n\nOut of %d branches: global (%d) local:(%d) gshare:(%d) \n\n ", nBranches, rightGlobal, rightLocal, gshareCount)
+  }
 }
