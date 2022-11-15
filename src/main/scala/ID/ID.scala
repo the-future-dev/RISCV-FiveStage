@@ -28,6 +28,9 @@ class InstructionDecode extends MultiIOModule {
       val outJ  = Output(new JumpBundle)
       val stall = Output(Bool())
       val out   = Output(new IDBundle)
+
+      val br    = Output(Bool())
+      val taken = Output(Bool())
     }
   )
 
@@ -159,6 +162,10 @@ class InstructionDecode extends MultiIOModule {
     io.out.address2           := 0.U
     io.out.memDSrc            := 0.U
   }
+
+  //Branch prediction "managing"
+  io.br     := branching
+  io.taken  := Mux(branching, MuxLookup(decoder.branchType, false.B, branchTypeMap), false.B)
 
   when((io.in.instruction.asUInt === 0x13.U || io.in.instruction.asUInt === 0x00.U) && (io.in.pc.asTypeOf(SInt(32.W)) >= 0.S) && (io.in.pc =/= 0.U) && !stalled){
     stopped                   := true.B
