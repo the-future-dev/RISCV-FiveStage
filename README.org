@@ -1,18 +1,18 @@
-* RISCV FiveStage Processor Project (190 Points)
+* RISCV FiveStage Processor
 This repository represents the RISCV Processor Project for the TDT-4255 course at NTNU. This project covers using Chisel to design a simple 32bit RISCV processor using RISCV32I integer instruction set. Please read the entire README before beginning work on this project as it will clarify many details of how the project work is to be carried out.
 
 The project itself is broken into four seperate milestones where each one adds additional functionality to the CPU. Functionality for each milestone is progressive, so it is necessary to complete earlier milestones before proceeded to subsequent ones.
 
-**** Milestone 1: Creating a Basic Datapath (30 Points)
+**** Milestone 1: Creating a Basic Datapath
 The goal of the first milestone is to establish basic CPU functionality and correctness for simple programs. To facilite this four NOP instructions will be inserted in between each regular instruction so that the CPU does not have to deal with any kind of hazards or forwarding. To get full credit on milestone 1 all "basic" tests must run with NOPs inserted.
 
-**** Milestone 2: Completeing the Datapath (30 Points)
+**** Milestone 2: Completeing the Datapath
 Milestone 2 is a simple evolution of milestone 1. To get full credit on milestone 2 all of the RISCV32I instructions should be added to the design, and the full battery of tests in "basic" and "programs" should successfully execute when NOPs are turned on.
 
-**** Milestone 3: Pipelining the CPU (30 Points)
+**** Milestone 3: Pipelining the CPU
 For the 3rd milestone NOPs between every instruction are disabled, and the support for pipelining is added so as to increase CPU performance. Getting this working requires adding support to handle RAW Hazards, Control Hazards, and delay after load. To get full credit for milestone 3 NOPs must be turned off, and all tests in "basic" and "programs" must run successfully.
 
-**** Milestone 4: Further Performance Improvments: (100 Points)
+**** Milestone 4: Further Performance Improvments:
 The forth and final milstone represents the culmination of all previous work into a single deisgn while aiming to further increase performance. For the final part of this project students are required to add additional hardware of their own choosing to the CPU to try and make it even faster than what was done in milestone 3. Student have the freedom to choose their own component to work on, though we have several optional suggestions as well. To get full credit on milestone 4 a simple version of at least one of the following hardware upgrades must be implemented, this will need to be explained verbally to a TA during a lab session. Additionally all tests in "basic" and "programs" must run successfully. Finally, your code must be uploaded to the course website where it will be evaluated.
 
 - Branch Prediction
@@ -34,11 +34,6 @@ Milestones 1 and 2 are started by reading [[./exercise.org][exercise]] file. To 
 
 **** Task 4:
 Milestones 3 and 4 are started by looking at [[./exercise2.org][exercise2]] file.
-
-** Grading
-Each time you are finished with a milestone and wish to get points is it necessary to come to a lab session. Once there show a TA that all of the necessary tests run successfully. You will likely also be asked a few questions about your code.
-
-In addition to showing the code during lab sessions, it is necessary at the end of the course to upload your final milestone to the course website as a compressed archive such as a zip. Details for this will come at a later date.
 
 ** Some addtional info to help you during your project
 
